@@ -4,7 +4,6 @@ using Application.Interfaces;
 using Persistence;
 using Microsoft.EntityFrameworkCore;
 using Persistence.Repositories;
-using TaskManagementSolution.Middlewares;
 
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Information()
