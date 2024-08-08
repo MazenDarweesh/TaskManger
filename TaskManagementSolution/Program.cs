@@ -4,6 +4,9 @@ using Application.Interfaces;
 using Persistence;
 using Microsoft.EntityFrameworkCore;
 using Persistence.Repositories;
+using Application.Services;
+using Application.IServices;
+using Infrastructure.Repositories;
 
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Information()
@@ -16,12 +19,21 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Host.UseSerilog();
 
+
+
+builder.Services.AddAutoMapper(typeof(MappingProfile));
+
 // Add services to the container
 builder.Services.AddDbContext<TaskContext>(options =>
     options.UseInMemoryDatabase("TaskList"));
 
+
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+builder.Services.AddScoped<IStudentRepository, StudentRepository>();
+builder.Services.AddScoped<IStudentService, StudentService>();
+builder.Services.AddScoped<ITaskService, TaskService>();
+builder.Services.AddLogging();
 
 
 builder.Services.AddControllers();

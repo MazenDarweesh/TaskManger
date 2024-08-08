@@ -9,12 +9,12 @@ namespace Application.Interfaces
 {
     public interface IGenericRepository<T> where T : class
     {
+        Task<PagedList<T>> GetPagedAsync(PaginationParams paginationParams);
         Task<IEnumerable<T>> GetAllAsync();
-        Task<T> GetByIdAsync(int id);
+        Task<T> GetByIdAsync(Ulid id);
         Task AddAsync(T entity);
         void UpdateAsync(T entity);
-        Task DeleteAsync(int id);
-        Task<PagedList<T>> GetPagedAsync(PaginationParams paginationParams);
+        Task DeleteAsync(Ulid id);
 
     }
 }

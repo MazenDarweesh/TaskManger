@@ -1,20 +1,26 @@
-﻿using Application.Interfaces;
+﻿using Microsoft.AspNetCore.Mvc;
+using Application.DTOs;
 using Application.Models;
-using Domain.Models;
-using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using Application.IServices;
 
 namespace TaskManagementSolution.Controllers;
 
 [Route("api/[controller]")]
-public class TasksController(IUnitOfWork unitOfWork) : BaseController
+[ApiController]
+public class TasksController : BaseController
 {
-    private readonly IUnitOfWork _unitOfWork = unitOfWork;
+    private readonly ITaskService _taskService;
+
+    public TasksController(ITaskService taskService)
+    {
+        _taskService = taskService;
+    }
 
     [HttpGet]
-    public async Task<ActionResult<PagedList<TaskDomain>>> GetTasks([FromQuery] PaginationParams paginationParams)
+    public async Task<ActionResult<PagedList<TaskDomainDTO>>> GetTasks([FromQuery] PaginationParams paginationParams)
     {
-        var tasks = await _unitOfWork.TaskRepository.GetPagedAsync(paginationParams);
+        var tasks = await _taskService.GetTasksAsync(paginationParams);
         Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(new
         {
             tasks.CurrentPage,
@@ -22,56 +28,59 @@ public class TasksController(IUnitOfWork unitOfWork) : BaseController
             tasks.PageSize,
             tasks.TotalCount
         }));
-        LogInformation("Retrieved all tasks");
         return Ok(tasks);
     }
 
-
     [HttpGet("{id}")]
-    public async Task<ActionResult<TaskDomain>> GetTask(int id)
+    public async Task<ActionResult<TaskDomainDTO>> GetTask(string id)
     {
-        var task = await _unitOfWork.TaskRepository.GetByIdAsync(id);
+        var task = await _taskService.GetTaskByIdAsync(id);
         if (task == null)
         {
-            LogWarning("Task with id {TaskId} not found", id);
             return NotFound();
         }
-
-        LogInformation("Retrieved task with id {TaskId}", id);
         return Ok(task);
     }
 
     [HttpPost]
-    public async Task<ActionResult<TaskDomain>> PostTask(TaskDomain task)
+    public async Task<ActionResult<TaskDomainDTO>> PostTask(TaskDomainDTO taskDto)
     {
-        await _unitOfWork.TaskRepository.AddAsync(task);
-        await _unitOfWork.SaveAsync();
-        LogInformation("Created a new task with id {TaskId}", task.Id);
-        return CreatedAtAction(nameof(GetTask), new { id = task.Id }, task);
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        var createdTask = await _taskService.AddTaskAsync(taskDto);
+
+        return CreatedAtAction(nameof(GetTask), new { id = createdTask.Id }, createdTask);
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> PutTask(int id, TaskDomain task)
+    public async Task<IActionResult> PutTask(string id, TaskDomainDTO taskDto)
     {
-        if (id != task.Id)
+        if (!Ulid.TryParse(id, out var ulid))
         {
-            LogWarning("Task id mismatch. Provided id: {TaskId}, Task id: {TaskObjectId}", id, task.Id);
-            return BadRequest();
+            return BadRequest("Invalid ID format.");
         }
 
-        _unitOfWork.TaskRepository.UpdateAsync(task);
-        await _unitOfWork.SaveAsync();
-        LogInformation("Updated task with id {TaskId}", id);
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        await _taskService.UpdateTaskAsync(id,taskDto);
         return NoContent();
     }
 
     [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteTask(int id)
+    public async Task<IActionResult> DeleteTask(string id)
     {
-        await _unitOfWork.TaskRepository.DeleteAsync(id);
-        await _unitOfWork.SaveAsync();
-        LogInformation("Deleted task with id {TaskId}", id);
+        if (!Ulid.TryParse(id, out var ulid))
+        {
+            return BadRequest("Invalid ID format.");
+        }
+
+        await _taskService.DeleteTaskAsync(id);
         return NoContent();
     }
 }
-

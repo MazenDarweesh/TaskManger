@@ -2,6 +2,7 @@
 using Persistence.Repositories;
 using Domain.Models;
 using Application.Models;
+using Infrastructure.Repositories;
 
 namespace Persistence
 {
@@ -9,10 +10,16 @@ namespace Persistence
     {
         private readonly TaskContext _context;
         private IGenericRepository<TaskDomain> _taskRepository;
+        private IStudentRepository _studentRepository;
+
 
         public UnitOfWork(TaskContext context)
         {
             _context = context;
+        }
+        public IStudentRepository StudentRepository
+        {
+            get { return _studentRepository ??= new StudentRepository(_context); }
         }
 
         public IGenericRepository<TaskDomain> TaskRepository
@@ -36,5 +43,7 @@ namespace Persistence
         {
             _context.Dispose();
         }
+
+       
     }
 }
