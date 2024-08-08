@@ -12,5 +12,7 @@ namespace Application.DTOs
         public string Name { get; set; }
         public string Email { get; set; }
         public DateTime DateOfBirth { get; set; }
+        //public List<TaskDomainDTO> Tasks { get; set; }
+
     }
 }
