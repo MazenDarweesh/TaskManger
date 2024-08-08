@@ -1,6 +1,7 @@
 ﻿using Application.DTOs;
 using Application.Interfaces;
 using Application.IServices;
+using Application.Models;
 using AutoMapper;
 using Domain.Entities;
 using Microsoft.Extensions.Logging;
@@ -20,26 +21,36 @@ namespace Application.Services
             _mapper = mapper;
         }
 
-        public async Task<IEnumerable<StudentDTO>> GetAllStudentsAsync()
+        public async Task<PagedList<StudentDTO>> GetAllStudentsAsync(PaginationParams paginationParams)
         {
-            var students = await _unitOfWork.StudentRepository.GetAllAsync(includeProperties: "Tasks");
-            return _mapper.Map<IEnumerable<StudentDTO>>(students);
+            var students = await _unitOfWork.StudentRepository.GetPagedAsync(paginationParams, "Tasks");
+            var studentDtos = _mapper.Map<List<StudentDTO>>(students);
+            return new PagedList<StudentDTO>(studentDtos, students.TotalCount, students.CurrentPage, students.PageSize);
         }
 
         public async Task<StudentDTO> GetStudentByIdAsync(string id)
         {
             var ulid = Ulid.Parse(id);
             var student = await _unitOfWork.StudentRepository.GetByIdAsync(ulid, includeProperties: "Tasks");
+            if(student == null)
+            {
+                _logger.LogWarning("Student with id {StudentId} not found", id);
+                throw new KeyNotFoundException($"Student with id {id} not found");
+            }
+            _logger.LogInformation("Retrieved student with id {StudentId}", id);
             return _mapper.Map<StudentDTO>(student);
         }
 
-        public async Task AddStudentAsync(StudentDTO studentDto)
+        public async Task<StudentDTO> AddStudentAsync(StudentDTO studentDto)
         {
             var student = _mapper.Map<Student>(studentDto);
             student.Id = Ulid.NewUlid(); // Generate Ulid here
+            
             await _unitOfWork.StudentRepository.AddAsync(student);
             await _unitOfWork.SaveAsync();
             _logger.LogInformation("Added a new student with id {StudentId}", student.Id);
+            
+            return _mapper.Map<StudentDTO>(student);
         }
 
         public async Task UpdateStudentAsync(string id, StudentDTO studentDto)
@@ -49,16 +60,13 @@ namespace Application.Services
             if (student == null)
             {
                 _logger.LogWarning("Student with id {StudentId} not found", id);
-                return;
+                throw new KeyNotFoundException($"Student with id {id} not found");
             }
             _mapper.Map(studentDto, student);
+
             _unitOfWork.StudentRepository.UpdateAsync(student);
             await _unitOfWork.SaveAsync();
             _logger.LogInformation("Updated student with id {StudentId}", student.Id);
-            //var student = _mapper.Map<Student>(studentDto);
-            //_unitOfWork.StudentRepository.UpdateAsync(student);
-            //await _unitOfWork.SaveAsync();
-            //_logger.LogInformation("Updated student with id {StudentId}", student.Id);
         }
 
 
@@ -66,12 +74,15 @@ namespace Application.Services
         {
             var ulid = Ulid.Parse(id);
             var student = await _unitOfWork.StudentRepository.GetByIdAsync(ulid);
-            if (student != null)
+
+            if (student == null)
             {
-                _unitOfWork.StudentRepository.DeleteAsync(ulid);
-                await _unitOfWork.SaveAsync();
-                _logger.LogInformation("Deleted student with id {StudentId}", student.Id);
+                _logger.LogWarning("Student with id {StudentId} not found", id);
+                throw new KeyNotFoundException($"Student with id {id} not found");
             }
+            await _unitOfWork.StudentRepository.DeleteAsync(ulid);
+            await _unitOfWork.SaveAsync();
+            _logger.LogInformation("Deleted student with id {StudentId}", student.Id);
         }
 
     }

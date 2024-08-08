@@ -4,10 +4,7 @@ using Application.IServices;
 using Application.Models;
 using AutoMapper;
 using Domain.Models;
-using FluentValidation;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.Extensions.Logging;
-using System.ComponentModel.DataAnnotations;
 namespace Application.Services
 {
     public class TaskService : ITaskService
@@ -22,18 +19,7 @@ namespace Application.Services
             _logger = logger;
             _mapper = mapper;
         }
-        //public async Task<ValidationResult> ValidateTaskAsync(TaskDomainDTO taskDto)
-        //{
-        //    var validationResult = await _validator.ValidateAsync(taskDto);
-        //    if (!validationResult.IsValid)
-        //    {
-        //        foreach (var error in validationResult.Errors)
-        //        {
-        //            _logger.LogWarning("Validation error on {PropertyName}: {ErrorMessage}", error.PropertyName, error.ErrorMessage);
-        //        }
-        //    }
-        //    return validationResult;
-        //}
+      
         public async Task<PagedList<TaskDomainDTO>> GetTasksAsync(PaginationParams paginationParams)
         {
             var tasks = await _unitOfWork.TaskRepository.GetPagedAsync(paginationParams);
@@ -50,7 +36,7 @@ namespace Application.Services
             if (task == null)
             {
                 _logger.LogWarning("Task with id {TaskId} not found", id);
-                return null;
+                throw new KeyNotFoundException($"Task with id {id} not found");
             }
 
             _logger.LogInformation("Retrieved task with id {TaskId}", id);
@@ -76,7 +62,7 @@ namespace Application.Services
             if (task == null)
             {
                 _logger.LogWarning("Task with id {TaskId} not found", id);
-                return ;
+                throw new KeyNotFoundException($"Task with id {id} not found");
             }
 
             _mapper.Map(taskDto, task);
@@ -89,6 +75,14 @@ namespace Application.Services
         public async Task DeleteTaskAsync(string id)
         {
             var ulid = Ulid.Parse(id);
+            var task = await _unitOfWork.TaskRepository.GetByIdAsync(ulid);
+           
+            if (task == null)
+            {
+                _logger.LogWarning("Task with id {TaskId} not found", id);
+                throw new KeyNotFoundException($"Task with id {id} not found");
+            }
+
             await _unitOfWork.TaskRepository.DeleteAsync(ulid);
             await _unitOfWork.SaveAsync();
             _logger.LogInformation("Deleted task with id {TaskId}", id);

@@ -1,4 +1,5 @@
 ﻿using Application.DTOs;
+using Application.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,9 +10,9 @@ namespace Application.IServices
 {
     public interface IStudentService
     {
-        Task<IEnumerable<StudentDTO>> GetAllStudentsAsync();
+        Task<PagedList<StudentDTO>> GetAllStudentsAsync(PaginationParams paginationParams);
         Task<StudentDTO> GetStudentByIdAsync(string id);
-        Task AddStudentAsync(StudentDTO studentDto);
+        Task<StudentDTO> AddStudentAsync(StudentDTO studentDto);
         Task UpdateStudentAsync(string id, StudentDTO studentDto);
         Task DeleteStudentAsync(string id);
     }

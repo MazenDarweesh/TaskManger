@@ -15,11 +15,7 @@ namespace Application.DTOs
 
         public bool IsCompleted { get; set; }
 
-        public Ulid StudentId{ get; set; }
-
-        //[Required(ErrorMessage = "Student name is required.")]
-        //public string StudentName { get; set; }
-        //public string StudentEmail { get; set; } // Include Student Email if needed
-
+        [Required(ErrorMessage = "Student ID is required.")]
+        public string StudentId{ get; set; }
     }
 }

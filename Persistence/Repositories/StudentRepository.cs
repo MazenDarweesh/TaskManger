@@ -2,13 +2,8 @@
 using Domain.Entities;
 using Persistence.Repositories;
 using Persistence;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using Domain.Models;
+using Application.Models;
 
 namespace Infrastructure.Repositories
 {
@@ -18,16 +13,23 @@ namespace Infrastructure.Repositories
         {
         }
 
-        public async Task<IEnumerable<Student>> GetAllAsync(string includeProperties = "")
+        public async Task<PagedList<Student>> GetPagedAsync(PaginationParams paginationParams, params string[] includeProperties)
         {
             IQueryable<Student> query = _context.Set<Student>();
-            foreach (var includeProperty in includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+
+            foreach (var includeProperty in includeProperties)
             {
                 query = query.Include(includeProperty);
             }
-            return await query.ToListAsync();
+
+            var count = await query.CountAsync();
+            var items = await query
+                .Skip((paginationParams.PageNumber - 1) * paginationParams.PageSize)
+                .Take(paginationParams.PageSize)
+                .ToListAsync();
+
+            return new PagedList<Student>(items, count, paginationParams.PageNumber, paginationParams.PageSize);
         }
-        // here prop is the problem 
         public async Task<Student> GetByIdAsync(Ulid id, string includeProperties = "")
         {
             IQueryable<Student> query = _context.Set<Student>();

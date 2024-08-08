@@ -22,7 +22,7 @@ public class TaskDomain
     // Foreign key to the Student entity
     public Ulid StudentId { get; set; }
 
-    // Navigation property to the related student
+    // Navigation property  allows you to navigate from a task to the related student
     public Student Student { get; set; }
 }
 

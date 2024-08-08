@@ -9,7 +9,6 @@ namespace Persistence.Repositories
         public override async Task<TaskDomain> AddAsync(TaskDomain entity)
         {
             entity.Id = Ulid.NewUlid();
-
             await base.AddAsync(entity);
             return entity;
         }

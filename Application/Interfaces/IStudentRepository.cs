@@ -1,4 +1,5 @@
-﻿using Domain.Entities;
+﻿using Application.Models;
+using Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,7 @@ namespace Application.Interfaces
 {
     public interface IStudentRepository : IGenericRepository<Student>
     {
-        Task<IEnumerable<Student>> GetAllAsync(string includeProperties = "");
+        Task<PagedList<Student>> GetPagedAsync(PaginationParams paginationParams, params string[] includeProperties);
         Task<Student> GetByIdAsync(Ulid id, string includeProperties = "");
     }
 }

@@ -34,6 +34,12 @@ public class TasksController : BaseController
     [HttpGet("{id}")]
     public async Task<ActionResult<TaskDomainDTO>> GetTask(string id)
     {
+        // Validate the ID format, without capturing the parsed Ulid value
+        if (!Ulid.TryParse(id, out _))
+        {
+            return BadRequest("Invalid ID format.");
+        }
+
         var task = await _taskService.GetTaskByIdAsync(id);
         if (task == null)
         {
@@ -58,7 +64,7 @@ public class TasksController : BaseController
     [HttpPut("{id}")]
     public async Task<IActionResult> PutTask(string id, TaskDomainDTO taskDto)
     {
-        if (!Ulid.TryParse(id, out var ulid))
+        if (!Ulid.TryParse(id, out _))
         {
             return BadRequest("Invalid ID format.");
         }
@@ -75,7 +81,7 @@ public class TasksController : BaseController
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteTask(string id)
     {
-        if (!Ulid.TryParse(id, out var ulid))
+        if (!Ulid.TryParse(id, out _))
         {
             return BadRequest("Invalid ID format.");
         }
