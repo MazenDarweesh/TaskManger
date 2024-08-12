@@ -31,6 +31,7 @@ namespace Application.Services
 
         public async Task<TaskDomainDTO> GetTaskByIdAsync(string id)
         {
+            //id.ConvertTo<Ulid>();
             var ulid = Ulid.Parse(id);
             var task = await _unitOfWork.TaskRepository.GetByIdAsync(ulid);
             if (task == null)

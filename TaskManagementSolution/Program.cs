@@ -25,7 +25,7 @@ builder.Services.AddAutoMapper(typeof(MappingProfile));
 
 // Add services to the container
 builder.Services.AddDbContext<TaskContext>(options =>
-    options.UseInMemoryDatabase("TaskList"));
+    options.UseInMemoryDatabase("TaskList")); //need to be in the appstengs.json
 
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
