@@ -31,8 +31,7 @@ namespace Application.Services
 
         public async Task<StudentDTO> GetStudentByIdAsync(string id)
         {
-            var ulid = Ulid.Parse(id);
-            var student = await _unitOfWork.StudentRepository.GetByIdAsync(ulid, includeProperties: "Tasks");
+            var student = await _unitOfWork.StudentRepository.GetByIdAsync(id.ConvertToUlid(), includeProperties: "Tasks");
             if(student == null)
             {
                 _logger.LogWarning("Student with id {StudentId} not found", id);
@@ -56,8 +55,7 @@ namespace Application.Services
 
         public async Task UpdateStudentAsync(string id, StudentDTO studentDto)
         {
-            var ulid = Ulid.Parse(id);
-            var student = await _unitOfWork.StudentRepository.GetByIdAsync(ulid);
+            var student = await _unitOfWork.StudentRepository.GetByIdAsync(id.ConvertToUlid());
             if (student == null)
             {
                 _logger.LogWarning("Student with id {StudentId} not found", id);
@@ -73,15 +71,14 @@ namespace Application.Services
 
         public async Task DeleteStudentAsync(string id)
         {
-            var ulid = Ulid.Parse(id);
-            var student = await _unitOfWork.StudentRepository.GetByIdAsync(ulid);
+            var student = await _unitOfWork.StudentRepository.GetByIdAsync(id.ConvertToUlid());
 
             if (student == null)
             {
                 _logger.LogWarning("Student with id {StudentId} not found", id);
                 throw new KeyNotFoundException($"Student with id {id} not found");
             }
-            await _unitOfWork.StudentRepository.DeleteAsync(ulid);
+            await _unitOfWork.StudentRepository.DeleteAsync(id.ConvertToUlid());
             await _unitOfWork.SaveAsync();
             _logger.LogInformation("Deleted student with id {StudentId}", student.Id);
         }

@@ -1,24 +1,35 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Configuration; 
 using Application.Interfaces;
 using Persistence;
 using Persistence.Repositories;
 using Application.Services;
 using Application.IServices;
 using Infrastructure.Repositories;
-
 using AutoMapper;
-
-
 
 namespace TaskManagementSolution.Extensions
 {
     public static class ServiceCollectionExtensions
     {
-        public static IServiceCollection AddDatabase(this IServiceCollection services)
+        public static IServiceCollection AddAllServices(this IServiceCollection services, IConfiguration configuration)
         {
+            services.AddDatabase(configuration);
+            services.AddRepositories();
+            services.AddServices();
+            services.AddLoggingServices();
+            services.AddControllerServices();
+            services.AddSwaggerServices();
+            services.AddAutoMapperServices();
+            return services;
+        }
+
+        public static IServiceCollection AddDatabase(this IServiceCollection services, IConfiguration configuration)
+        {
+            var databaseName = configuration.GetConnectionString("InMemoryDatabase");
             services.AddDbContext<TaskContext>(options =>
-                options.UseInMemoryDatabase("TaskList")); //need to be in the appstengs.json
+                options.UseInMemoryDatabase(databaseName));
             return services;
         }
 
@@ -65,18 +76,6 @@ namespace TaskManagementSolution.Extensions
 
             IMapper mapper = mapperConfig.CreateMapper();
             services.AddSingleton(mapper);
-            return services;
-        }
-
-        public static IServiceCollection AddAllServices(this IServiceCollection services)
-        {
-            services.AddDatabase();
-            services.AddRepositories();
-            services.AddServices();
-            services.AddLoggingServices();
-            services.AddControllerServices();
-            services.AddSwaggerServices();
-            services.AddAutoMapperServices();
             return services;
         }
     }

@@ -31,9 +31,7 @@ namespace Application.Services
 
         public async Task<TaskDomainDTO> GetTaskByIdAsync(string id)
         {
-            //id.ConvertTo<Ulid>();
-            var ulid = Ulid.Parse(id);
-            var task = await _unitOfWork.TaskRepository.GetByIdAsync(ulid);
+            var task = await _unitOfWork.TaskRepository.GetByIdAsync(id.ConvertToUlid());
             if (task == null)
             {
                 _logger.LogWarning("Task with id {TaskId} not found", id);
@@ -58,8 +56,7 @@ namespace Application.Services
 
         public async Task UpdateTaskAsync(string id,TaskDomainDTO taskDto)
         {
-            var ulid = Ulid.Parse(id);
-            var task = await _unitOfWork.TaskRepository.GetByIdAsync(ulid);
+            var task = await _unitOfWork.TaskRepository.GetByIdAsync(id.ConvertToUlid());
             if (task == null)
             {
                 _logger.LogWarning("Task with id {TaskId} not found", id);
@@ -75,8 +72,7 @@ namespace Application.Services
 
         public async Task DeleteTaskAsync(string id)
         {
-            var ulid = Ulid.Parse(id);
-            var task = await _unitOfWork.TaskRepository.GetByIdAsync(ulid);
+            var task = await _unitOfWork.TaskRepository.GetByIdAsync(id.ConvertToUlid());
            
             if (task == null)
             {
@@ -84,7 +80,7 @@ namespace Application.Services
                 throw new KeyNotFoundException($"Task with id {id} not found");
             }
 
-            await _unitOfWork.TaskRepository.DeleteAsync(ulid);
+            await _unitOfWork.TaskRepository.DeleteAsync(id.ConvertToUlid());
             await _unitOfWork.SaveAsync();
             _logger.LogInformation("Deleted task with id {TaskId}", id);
         }
