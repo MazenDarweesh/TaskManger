@@ -1,6 +1,6 @@
-   using AutoMapper;
-   using Application.DTOs;
-   using Domain.Models;
+using AutoMapper;
+using Application.DTOs;
+using Domain.Models;
 using Domain.Entities;
 
 public class MappingProfile : Profile
