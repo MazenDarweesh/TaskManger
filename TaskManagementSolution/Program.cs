@@ -6,7 +6,8 @@ using Persistence.Repositories;
 using Application.Services;
 using Application.IServices;
 using Infrastructure.Repositories;
-using System.Net.Mail;
+using MailKit.Net.Smtp;
+using Microsoft.EntityFrameworkCore;
 
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Information()
