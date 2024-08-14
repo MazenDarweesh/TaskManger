@@ -24,6 +24,7 @@ namespace Application.Services
         public async Task<PagedList<StudentDTO>> GetAllStudentsAsync(PaginationParams paginationParams)
         {
             var students = await _unitOfWork.StudentRepository.GetPagedAsync(paginationParams, "Tasks");
+            _logger.LogInformation("Retrieved {Count} students", students.Count);
             var studentDtos = _mapper.Map<List<StudentDTO>>(students);
             return new PagedList<StudentDTO>(studentDtos, students.TotalCount, students.CurrentPage, students.PageSize);
         }
