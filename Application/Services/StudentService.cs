@@ -29,9 +29,8 @@ namespace Application.Services
         {
             var students = await _unitOfWork.StudentRepository.GetPagedAsync(paginationParams, "Tasks");
             var studentDtos = _mapper.Map<List<StudentDTO>>(students);
-            var test = _localizer[LocalizationKeys.Test];
-            Console.WriteLine(test);
-            _logger.LogInformation(_localizer["StudentRetrieved"]);
+
+            _logger.LogInformation(_localizer[LocalizationKeys.StudentRetrieved]);
             return new PagedList<StudentDTO>(studentDtos, students.TotalCount, students.CurrentPage, students.PageSize);
         }
 
@@ -40,10 +39,10 @@ namespace Application.Services
             var student = await _unitOfWork.StudentRepository.GetByIdAsync(id.ConvertToUlid(), includeProperties: "Tasks");
             if (student == null)
             {
-                _logger.LogWarning(_localizer[LocalizationKeys.StudentNotFound, id].Value);
-                throw new KeyNotFoundException(_localizer[LocalizationKeys.StudentNotFound, id].Value);
+                _logger.LogWarning(_localizer[LocalizationKeys.StudentNotFound, id]);
+                throw new KeyNotFoundException(_localizer[LocalizationKeys.StudentNotFound, id]);
             }
-            _logger.LogInformation(_localizer[LocalizationKeys.StudentRetrieved, id].Value);
+            _logger.LogInformation(_localizer[LocalizationKeys.StudentRetrieved, id]);
             return _mapper.Map<StudentDTO>(student);
         }
 
@@ -54,7 +53,7 @@ namespace Application.Services
 
             await _unitOfWork.StudentRepository.AddAsync(student);
             await _unitOfWork.SaveAsync();
-            _logger.LogInformation(_localizer[LocalizationKeys.StudentAdded, student.Id].Value);
+            _logger.LogInformation(_localizer[LocalizationKeys.StudentAdded, student.Id]);
 
             return _mapper.Map<StudentDTO>(student);
         }
@@ -65,13 +64,13 @@ namespace Application.Services
             if (student == null)
             {
                 _logger.LogWarning("Student with id {StudentId} not found", id);
-                throw new KeyNotFoundException(_localizer[LocalizationKeys.StudentNotFound, id].Value);
+                throw new KeyNotFoundException(_localizer[LocalizationKeys.StudentNotFound, id]);
             }
             _mapper.Map(studentDto, student);
 
             _unitOfWork.StudentRepository.UpdateAsync(student);
             await _unitOfWork.SaveAsync();
-            _logger.LogInformation(_localizer[LocalizationKeys.StudentUpdated, student.Id].Value);
+            _logger.LogInformation(_localizer[LocalizationKeys.StudentUpdated, student.Id]);
         }
 
         public async Task DeleteStudentAsync(string id)
@@ -82,11 +81,11 @@ namespace Application.Services
             if (student == null)
             {
                 _logger.LogWarning("Student with id {StudentId} not found", id);
-                throw new KeyNotFoundException(_localizer[LocalizationKeys.StudentNotFound, id].Value);
+                throw new KeyNotFoundException(_localizer[LocalizationKeys.StudentNotFound, id]);
             }
             await _unitOfWork.StudentRepository.DeleteAsync(id.ConvertToUlid());
             await _unitOfWork.SaveAsync();
-            _logger.LogInformation(_localizer[LocalizationKeys.StudentDeleted, student.Id].Value);
+            _logger.LogInformation(_localizer[LocalizationKeys.StudentDeleted, student.Id]);
         }
     }
 }

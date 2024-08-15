@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Localization;
 using Application.Services;
+using Microsoft.Extensions.Logging;
 
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Information()
@@ -18,34 +19,16 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Host.UseSerilog();
 
+builder.Services.AddLocalization();
+builder.Services.AddSingleton<LocalizationMiddleware>();
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSingleton<IStringLocalizerFactory, JsonStringLocalizerFactory>();
+
 // Add services to the container.
 builder.Services.AddAllServices(builder.Configuration);
 
 // Register the JsonStringLocalizerFactory
 //builder.Services.AddSingleton<IStringLocalizerFactory>(provider => new JsonStringLocalizerFactory("Resources"));
-
-builder.Services.AddSingleton<IStringLocalizerFactory, JsonStringLocalizerFactory>();
-
-builder.Services.AddMvc().AddDataAnnotationsLocalization(options =>
-{
-    options.DataAnnotationLocalizerProvider = (type, factory) => factory.Create(typeof(JsonStringLocalizerFactory));
-    {
-        //var localizerType = typeof(JsonStringLocalizer<>).MakeGenericType(type);
-        //return (IStringLocalizer)factory.Create(localizerType);
-    };
-});
-
-// Register the open generic type directly
-//builder.Services.AddSingleton(typeof(IStringLocalizer<>), typeof(JsonStringLocalizer<>));
-
-// Register the open generic type using a factory method
-//builder.Services.AddSingleton(typeof(IStringLocalizer<>), provider =>
-//{
-//    var factory = provider.GetRequiredService<IStringLocalizerFactory>();
-//    var resourcesPath = "Resources";
-//    var localizerType = typeof(JsonStringLocalizer<>).MakeGenericType(typeof(object)); // Use object as a placeholder
-//    return Activator.CreateInstance(localizerType, resourcesPath);
-//});
 
 builder.Services.Configure<RequestLocalizationOptions>(options =>
 {
@@ -74,6 +57,8 @@ app.UseRouting();
 
 var localizationOptions = app.Services.GetService<IOptions<RequestLocalizationOptions>>()?.Value ?? new RequestLocalizationOptions();
 app.UseRequestLocalization(localizationOptions);
+//app.UseStaticFiles();
+app.UseMiddleware<LocalizationMiddleware>();
 
 app.MapControllers();
 

@@ -10,7 +10,6 @@
   "TaskRetrieved": "Retrieved task with id {0}",
   "TasksRetrieved": "Retrieved {0} tasks",
   "TaskUpdated": "Updated task with id {0}",
-  "TaskDeleted": "Deleted task with id {0}",
-  "Test": "tesst"
+  "TaskDeleted": "Deleted task with id {0}"
 
 }

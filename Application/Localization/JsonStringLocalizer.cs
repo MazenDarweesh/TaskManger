@@ -1,56 +1,27 @@
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Localization;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Collections.Concurrent;
 using System.Globalization;
 using System.IO;
 
-public class JsonStringLocalizer<T> : IStringLocalizer<T>
+public class JsonStringLocalizer : IStringLocalizer
 {
-    private readonly ConcurrentDictionary<string, JObject> _localizationData;
-    private readonly string _resourcesPath;
+    private readonly IDistributedCache _cache;
+    private readonly JsonSerializer _serializer = new JsonSerializer();
 
-    public JsonStringLocalizer(string resourcesPath)
+    public JsonStringLocalizer(IDistributedCache cache)
     {
-        var filePath = $"Resources/{Thread.CurrentThread.CurrentCulture.Name}.json";
-        _resourcesPath = Path.GetFullPath(filePath);
-
-        //_resourcesPath = resourcesPath;
-        _localizationData = new ConcurrentDictionary<string, JObject>();
-    }
-
-    private JObject GetLocalizationData(string culture)
-    {
-        // Checks if the data is already cached.
-        if (_localizationData.TryGetValue(culture, out var localizationData))
-        {
-            return localizationData;
-        }
-
-        var filePath = Path.Combine(_resourcesPath, $"{typeof(T).Name}.{culture}.json");
-        Console.WriteLine($"Looking for resource file at: {filePath}"); // Add this line for logging
-
-        if (File.Exists(filePath))
-        {
-            var json = File.ReadAllText(filePath);
-            localizationData = JObject.Parse(json);
-            _localizationData[culture] = localizationData;
-        }
-        else
-        {
-            localizationData = new JObject();
-        }
-
-        return localizationData;
+        _cache = cache;
     }
 
     public LocalizedString this[string name]
     {
         get
         {
-            var culture = CultureInfo.CurrentCulture.Name;
-            var localizationData = GetLocalizationData(culture);
-            var value = localizationData[name]?.ToString() ?? name;
-            return new LocalizedString(name, value);
+            string value = GetString(name);
+            return new LocalizedString(name, value ?? name, value == null);
         }
     }
 
@@ -58,25 +29,65 @@ public class JsonStringLocalizer<T> : IStringLocalizer<T>
     {
         get
         {
-            var format = this[name].Value;
-            var value = string.Format(format, arguments);
-            return new LocalizedString(name, value);
+            var actualValue = this[name];
+            return !actualValue.ResourceNotFound
+                ? new LocalizedString(name, string.Format(actualValue.Value, arguments), false)
+                : actualValue;
         }
     }
-    // returns all localized strings for the current culture.
+
     public IEnumerable<LocalizedString> GetAllStrings(bool includeParentCultures)
     {
-        var culture = CultureInfo.CurrentCulture.Name;
-        var localizationData = GetLocalizationData(culture);
-
-        foreach (var item in localizationData)
+        string filePath = $"Resources/{Thread.CurrentThread.CurrentCulture.Name}.json";
+        using (var str = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read))
+        using (var sReader = new StreamReader(str))
+        using (var reader = new JsonTextReader(sReader))
         {
-            yield return new LocalizedString(item.Key, item.Value?.ToString() ?? string.Empty);
+            while (reader.Read())
+            {
+                if (reader.TokenType != JsonToken.PropertyName)
+                    continue;
+                string key = (string)reader.Value;
+                reader.Read();
+                string value = _serializer.Deserialize<string>(reader);
+                yield return new LocalizedString(key, value, false);
+            }
         }
     }
 
-    public IStringLocalizer WithCulture(CultureInfo culture)
+    private string GetString(string key)
     {
-        return new JsonStringLocalizer<T>(_resourcesPath);
+        string relativeFilePath = $"Resources/{Thread.CurrentThread.CurrentCulture.Name}.json";
+        string fullFilePath = Path.GetFullPath(relativeFilePath);
+        if (File.Exists(fullFilePath))
+        {
+            string cacheKey = $"locale_{Thread.CurrentThread.CurrentCulture.Name}_{key}";
+            string cacheValue = _cache.GetString(cacheKey);
+            if (!string.IsNullOrEmpty(cacheValue)) return cacheValue;
+            string result = GetValueFromJSON(key, Path.GetFullPath(relativeFilePath));
+            if (!string.IsNullOrEmpty(result)) _cache.SetString(cacheKey, result);
+            return result;
+        }
+        return default(string);
+    }
+
+    private string GetValueFromJSON(string propertyName, string filePath)
+    {
+        if (propertyName == null) return default;
+        if (filePath == null) return default;
+        using (var str = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read))
+        using (var sReader = new StreamReader(str))
+        using (var reader = new JsonTextReader(sReader))
+        {
+            while (reader.Read())
+            {
+                if (reader.TokenType == JsonToken.PropertyName && (string)reader.Value == propertyName)
+                {
+                    reader.Read();
+                    return _serializer.Deserialize<string>(reader);
+                }
+            }
+            return default;
+        }
     }
 }
