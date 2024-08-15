@@ -50,10 +50,7 @@ namespace TaskManagementSolution.Controllers
         [HttpPost]
         public async Task<ActionResult<StudentDTO>> PostStudent(StudentDTO studentDto)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+           
             var createdStudent = await _studentService.AddStudentAsync(studentDto);
 
             return CreatedAtAction(nameof(GetStudent), new { id = studentDto.Id }, studentDto);
@@ -65,11 +62,6 @@ namespace TaskManagementSolution.Controllers
             if (!Ulid.TryParse(id, out _))
             {
                 return BadRequest("Invalid ID format.");
-            }
-
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
             }
 
             await _studentService.UpdateStudentAsync(id, studentDto);

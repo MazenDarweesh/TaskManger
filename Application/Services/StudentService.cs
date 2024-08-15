@@ -4,6 +4,7 @@ using Application.IServices;
 using Application.Models;
 using AutoMapper;
 using Domain.Entities;
+using FluentValidation;
 using Microsoft.Extensions.Logging;
 
 namespace Application.Services
@@ -13,12 +14,23 @@ namespace Application.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<StudentService> _logger;
         private readonly IMapper _mapper;
+        private readonly IValidator<StudentDTO> _studentDtoValidator;
 
-        public StudentService(IUnitOfWork unitOfWork, ILogger<StudentService> logger, IMapper mapper)
+        public StudentService(IUnitOfWork unitOfWork, ILogger<StudentService> logger, IMapper mapper, IValidator<StudentDTO> studentDtoValidator)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
             _mapper = mapper;
+            _studentDtoValidator = studentDtoValidator;
+        }
+        private async Task ValidateStudentDtoAsync(StudentDTO studentDto)
+        {
+            var validationResult = await _studentDtoValidator.ValidateAsync(studentDto);
+            if (!validationResult.IsValid)
+            {
+                _logger.LogWarning("Validation failed for student DTO: {Errors}", validationResult.Errors);
+                throw new ValidationException(validationResult.Errors);
+            }
         }
 
         public async Task<PagedList<StudentDTO>> GetAllStudentsAsync(PaginationParams paginationParams)
@@ -32,7 +44,7 @@ namespace Application.Services
         public async Task<StudentDTO> GetStudentByIdAsync(string id)
         {
             var student = await _unitOfWork.StudentRepository.GetByIdAsync(id.ConvertToUlid(), includeProperties: "Tasks");
-            if(student == null)
+            if (student == null)
             {
                 _logger.LogWarning("Student with id {StudentId} not found", id);
                 throw new KeyNotFoundException($"Student with id {id} not found");
@@ -43,18 +55,22 @@ namespace Application.Services
 
         public async Task<StudentDTO> AddStudentAsync(StudentDTO studentDto)
         {
+            await ValidateStudentDtoAsync(studentDto);
+
             var student = _mapper.Map<Student>(studentDto);
             student.Id = Ulid.NewUlid(); // Generate Ulid here
-            
+
             await _unitOfWork.StudentRepository.AddAsync(student);
             await _unitOfWork.SaveAsync();
             _logger.LogInformation("Added a new student with id {StudentId}", student.Id);
-            
+
             return _mapper.Map<StudentDTO>(student);
         }
 
         public async Task UpdateStudentAsync(string id, StudentDTO studentDto)
         {
+            await ValidateStudentDtoAsync(studentDto);
+
             var student = await _unitOfWork.StudentRepository.GetByIdAsync(id.ConvertToUlid());
             if (student == null)
             {
@@ -67,7 +83,6 @@ namespace Application.Services
             await _unitOfWork.SaveAsync();
             _logger.LogInformation("Updated student with id {StudentId}", student.Id);
         }
-
 
         public async Task DeleteStudentAsync(string id)
         {
@@ -82,6 +97,5 @@ namespace Application.Services
             await _unitOfWork.SaveAsync();
             _logger.LogInformation("Deleted student with id {StudentId}", student.Id);
         }
-
     }
 }

@@ -8,6 +8,7 @@ using Application.Services;
 using Application.IServices;
 using Infrastructure.Repositories;
 using AutoMapper;
+using FluentValidation.AspNetCore;
 
 namespace TaskManagementSolution.Extensions
 {
@@ -28,6 +29,10 @@ namespace TaskManagementSolution.Extensions
         public static IServiceCollection AddDatabase(this IServiceCollection services, IConfiguration configuration)
         {
             var databaseName = configuration.GetConnectionString("InMemoryDatabase");
+            if (string.IsNullOrEmpty(databaseName))
+            {
+                throw new ArgumentNullException(nameof(databaseName), "Database name cannot be null or empty.");
+            }
             services.AddDbContext<TaskContext>(options =>
                 options.UseInMemoryDatabase(databaseName));
             return services;
@@ -56,7 +61,8 @@ namespace TaskManagementSolution.Extensions
 
         public static IServiceCollection AddControllerServices(this IServiceCollection services)
         {
-            services.AddControllers();
+            services.AddControllers()
+                    .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<StudentDTOValidator>()); // Use a known validator class
             return services;
         }
 
