@@ -10,9 +10,10 @@ public class JsonStringLocalizerFactory : IStringLocalizerFactory
 {
     private readonly string _resourcesPath;
 
-    public JsonStringLocalizerFactory(string resourcesPath)
+    public JsonStringLocalizerFactory()
     {
-        _resourcesPath = resourcesPath;
+        var filePath = $"Resources/{Thread.CurrentThread.CurrentCulture.Name}.json";
+        _resourcesPath = Path.GetFullPath(filePath);
     }
 
     public IStringLocalizer Create(Type resourceSource)

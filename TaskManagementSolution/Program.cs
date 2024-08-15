@@ -22,19 +22,30 @@ builder.Host.UseSerilog();
 builder.Services.AddAllServices(builder.Configuration);
 
 // Register the JsonStringLocalizerFactory
-builder.Services.AddSingleton<IStringLocalizerFactory>(provider => new JsonStringLocalizerFactory("Resources"));
+//builder.Services.AddSingleton<IStringLocalizerFactory>(provider => new JsonStringLocalizerFactory("Resources"));
+
+builder.Services.AddSingleton<IStringLocalizerFactory, JsonStringLocalizerFactory>();
+
+builder.Services.AddMvc().AddDataAnnotationsLocalization(options =>
+{
+    options.DataAnnotationLocalizerProvider = (type, factory) => factory.Create(typeof(JsonStringLocalizerFactory));
+    {
+        //var localizerType = typeof(JsonStringLocalizer<>).MakeGenericType(type);
+        //return (IStringLocalizer)factory.Create(localizerType);
+    };
+});
 
 // Register the open generic type directly
 //builder.Services.AddSingleton(typeof(IStringLocalizer<>), typeof(JsonStringLocalizer<>));
 
 // Register the open generic type using a factory method
-builder.Services.AddSingleton(typeof(IStringLocalizer<>), provider =>
-{
-    var factory = provider.GetRequiredService<IStringLocalizerFactory>();
-    var resourcesPath = "Resources";
-    var localizerType = typeof(JsonStringLocalizer<>).MakeGenericType(typeof(object)); // Use object as a placeholder
-    return Activator.CreateInstance(localizerType, resourcesPath);
-});
+//builder.Services.AddSingleton(typeof(IStringLocalizer<>), provider =>
+//{
+//    var factory = provider.GetRequiredService<IStringLocalizerFactory>();
+//    var resourcesPath = "Resources";
+//    var localizerType = typeof(JsonStringLocalizer<>).MakeGenericType(typeof(object)); // Use object as a placeholder
+//    return Activator.CreateInstance(localizerType, resourcesPath);
+//});
 
 builder.Services.Configure<RequestLocalizationOptions>(options =>
 {

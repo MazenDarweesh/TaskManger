@@ -11,7 +11,10 @@ public class JsonStringLocalizer<T> : IStringLocalizer<T>
 
     public JsonStringLocalizer(string resourcesPath)
     {
-        _resourcesPath = resourcesPath;
+        var filePath = $"Resources/{Thread.CurrentThread.CurrentCulture.Name}.json";
+        _resourcesPath = Path.GetFullPath(filePath);
+
+        //_resourcesPath = resourcesPath;
         _localizationData = new ConcurrentDictionary<string, JObject>();
     }
 
