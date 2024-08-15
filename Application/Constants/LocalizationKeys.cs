@@ -1,3 +1,5 @@
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+
 namespace Application.Constants
 {
     public static class LocalizationKeys
@@ -14,6 +16,7 @@ namespace Application.Constants
         public const string TasksRetrieved = "TasksRetrieved";
         public const string TaskUpdated = "TaskUpdated";
         public const string TaskDeleted = "TaskDeleted";
+        public const string Test = "Test";
     }
 }
 

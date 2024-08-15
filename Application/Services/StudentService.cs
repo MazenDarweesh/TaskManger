@@ -29,7 +29,9 @@ namespace Application.Services
         {
             var students = await _unitOfWork.StudentRepository.GetPagedAsync(paginationParams, "Tasks");
             var studentDtos = _mapper.Map<List<StudentDTO>>(students);
-            _logger.LogInformation(_localizer[LocalizationKeys.StudentsRetrieved, students.Count].Value);
+            var test = _localizer[LocalizationKeys.Test];
+            Console.WriteLine(test);
+            _logger.LogInformation(_localizer["StudentRetrieved"]);
             return new PagedList<StudentDTO>(studentDtos, students.TotalCount, students.CurrentPage, students.PageSize);
         }
 
