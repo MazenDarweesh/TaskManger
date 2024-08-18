@@ -1,10 +1,6 @@
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Localization;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System.Collections.Concurrent;
-using System.Globalization;
-using System.IO;
 
 public class JsonStringLocalizer : IStringLocalizer
 {

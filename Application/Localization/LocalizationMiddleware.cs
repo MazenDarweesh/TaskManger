@@ -1,8 +1,5 @@
 using Microsoft.AspNetCore.Http;
 using System.Globalization;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 public class LocalizationMiddleware : IMiddleware
 {

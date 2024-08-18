@@ -1,12 +1,9 @@
+using Microsoft.OpenApi.Models;
 using Serilog.Events;
 using Serilog;
 using TaskManagementSolution.Extensions;
-using System.Globalization;
-using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.Options;
-using Microsoft.Extensions.Localization;
-using Application.Services;
-using Microsoft.Extensions.Logging;
+
 
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Information()
@@ -19,30 +16,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Host.UseSerilog();
 
-builder.Services.AddLocalization();
-builder.Services.AddSingleton<LocalizationMiddleware>();
-builder.Services.AddDistributedMemoryCache();
-builder.Services.AddSingleton<IStringLocalizerFactory, JsonStringLocalizerFactory>();
-
 // Add services to the container.
 builder.Services.AddAllServices(builder.Configuration);
-
-// Register the JsonStringLocalizerFactory
-//builder.Services.AddSingleton<IStringLocalizerFactory>(provider => new JsonStringLocalizerFactory("Resources"));
-
-builder.Services.Configure<RequestLocalizationOptions>(options =>
-{
-    var supportedCultures = new[]
-    {
-        new CultureInfo("en"),
-        new CultureInfo("ar")
-    };
-
-    options.DefaultRequestCulture = new RequestCulture("ar");
-    options.SupportedCultures = supportedCultures;
-    options.SupportedUICultures = supportedCultures;
-    options.SetDefaultCulture("ar");
-});
 
 var app = builder.Build();
 
@@ -57,7 +32,7 @@ app.UseRouting();
 
 var localizationOptions = app.Services.GetService<IOptions<RequestLocalizationOptions>>()?.Value ?? new RequestLocalizationOptions();
 app.UseRequestLocalization(localizationOptions);
-//app.UseStaticFiles();
+
 app.UseMiddleware<LocalizationMiddleware>();
 
 app.MapControllers();
