@@ -1,6 +1,37 @@
+//he TaskManagementSolution.http file appears to be an HTTP request file used for testing and interacting with web APIs directly from within your IDE, in this case, Visual Studio. This type of file is often used to define and execute HTTP requests without needing a separate tool like Postman.
 @TaskManagementSolution_HostAddress = http://localhost:5143
 
-GET {{TaskManagementSolution_HostAddress}}/weatherforecast/
+### Get all students
+GET {{TaskManagementSolution_HostAddress}}/api/student
 Accept: application/json
 
-###
+### Get a specific student by ID
+GET {{TaskManagementSolution_HostAddress}}/api/student/{id}
+Accept: application/json
+
+### Create a new student
+POST {{TaskManagementSolution_HostAddress}}/api/student
+Content-Type: application/json
+
+{
+  "id": "string",
+  "name": "Jon Doe",
+  "email": "user@example.com",
+  "dateOfBirth": "2024-08-18T12:30:16.039Z"
+}
+
+### Update an existing student
+PUT {{TaskManagementSolution_HostAddress}}/api/student/{id}
+Content-Type: application/json
+
+{
+  {
+  "id": "string",
+  "name": "string",
+  "email": "user@example.com",
+  "dateOfBirth": "2024-08-18T12:30:16.039Z"
+  }
+}
+
+### Delete a student
+DELETE {{TaskManagementSolution_HostAddress}}/api/student/{id}
