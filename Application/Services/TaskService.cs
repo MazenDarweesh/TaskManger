@@ -27,7 +27,7 @@ namespace Application.Services
         public async Task<PagedList<TaskDomainDTO>> GetTasksAsync(PaginationParams paginationParams)
         {
             var tasks = await _unitOfWork.TaskRepository.GetPagedAsync(paginationParams);
-            _logger.LogInformation(_localizer["TaskRetrieved"]);
+            _logger.LogInformation(_localizer[LocalizationKeys.TasksRetrieved, tasks.Count]);
 
             var taskDtos = _mapper.Map<List<TaskDomainDTO>>(tasks);
             return new PagedList<TaskDomainDTO>(taskDtos, tasks.TotalCount, tasks.CurrentPage, tasks.PageSize);
