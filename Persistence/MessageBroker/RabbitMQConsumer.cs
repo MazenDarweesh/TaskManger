@@ -61,7 +61,7 @@ public class RabbitMQConsumer : IHostedService
     private async Task SendEmailAsync(EmailMessage emailMessage)
     {
         var message = new MimeMessage();
-        message.From.Add(new MailboxAddress("ofssInc", "ofssInc-email@example.com"));
+        message.From.Add(new MailboxAddress("WorldOffSS","smtp.example.com"));
         message.To.Add(new MailboxAddress(emailMessage.ToName, emailMessage.ToEmail));
         message.Subject = emailMessage.Subject;
         message.Body = new TextPart("Hello to our system") { Text = emailMessage.Body };
@@ -72,7 +72,7 @@ public class RabbitMQConsumer : IHostedService
         var username = smtpSettings["Username"];
         var password = smtpSettings["Password"];
 
-        await _smtpClient.ConnectAsync(host, port, false);
+        await _smtpClient.ConnectAsync(host, port,true);
         await _smtpClient.AuthenticateAsync(username, password);
         await _smtpClient.SendAsync(message);
         await _smtpClient.DisconnectAsync(true);

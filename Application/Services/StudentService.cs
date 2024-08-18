@@ -58,7 +58,7 @@ namespace Application.Services
             {
                 ToName = student.Name,
                 ToEmail = student.Email,
-                Subject = "Welcome to the system",
+                Subject = "Welcome To Our Website!!",
                 Body = "Thank you for registering."
             };
             _messagePublisher.SendMessage(emailMessage);
