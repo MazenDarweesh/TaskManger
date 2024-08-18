@@ -1,6 +1,9 @@
+using Microsoft.OpenApi.Models;
 using Serilog.Events;
 using Serilog;
 using TaskManagementSolution.Extensions;
+using Microsoft.Extensions.Options;
+
 
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Information()
@@ -13,9 +16,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Host.UseSerilog();
 
-// Add services to the container
+// Add services to the container.
 builder.Services.AddAllServices(builder.Configuration);
-
 
 var app = builder.Build();
 
@@ -27,6 +29,11 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseRouting();
+
+var localizationOptions = app.Services.GetService<IOptions<RequestLocalizationOptions>>()?.Value ?? new RequestLocalizationOptions();
+app.UseRequestLocalization(localizationOptions);
+
+app.UseMiddleware<LocalizationMiddleware>();
 
 app.MapControllers();
 

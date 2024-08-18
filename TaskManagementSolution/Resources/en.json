@@ -1,0 +1,14 @@
+﻿{
+  "StudentNotFound": "Student with id {0} not found",
+  "TaskNotFound": "Task with id {0} not found",
+  "StudentAdded": "Added a new student with id {0}",
+  "StudentRetrieved": "Retrieved student with id {0}",
+  "StudentsRetrieved": "Retrieved {0} students",
+  "StudentUpdated": "Updated student with id {0}",
+  "StudentDeleted": "Deleted student with id {0}",
+  "TaskAdded": "Created a new task with id {0}",
+  "TaskRetrieved": "Retrieved task with id {0}",
+  "TasksRetrieved": "Retrieved {0} tasks",
+  "TaskUpdated": "Updated task with id {0}",
+  "TaskDeleted": "Deleted task with id {0}"
+}

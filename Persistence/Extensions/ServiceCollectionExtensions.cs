@@ -8,6 +8,11 @@ using Application.Services;
 using Application.IServices;
 using Infrastructure.Repositories;
 using AutoMapper;
+using Microsoft.OpenApi.Models;
+using Microsoft.Extensions.Localization;
+using Microsoft.AspNetCore.Builder;
+using System.Globalization;
+using Microsoft.AspNetCore.Localization;
 using FluentValidation.AspNetCore;
 
 namespace TaskManagementSolution.Extensions
@@ -23,6 +28,9 @@ namespace TaskManagementSolution.Extensions
             services.AddControllerServices();
             services.AddSwaggerServices();
             services.AddAutoMapperServices();
+            services.AddLocalizationServices();
+            services.AddCustomMiddleware();
+            services.AddDistributedCachingServices();
             return services;
         }
 
@@ -69,7 +77,18 @@ namespace TaskManagementSolution.Extensions
         public static IServiceCollection AddSwaggerServices(this IServiceCollection services)
         {
             services.AddEndpointsApiExplorer();
-            services.AddSwaggerGen();
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "TaskManagementSolution", Version = "v1" });
+                c.AddSecurityDefinition("Accept-Language", new OpenApiSecurityScheme
+                {
+                    In = ParameterLocation.Header,
+                    Name = "Accept-Language",
+                    Type = SecuritySchemeType.ApiKey,
+                    Description = "Language header"
+                });
+                c.OperationFilter<AddLanguageHeaderOperationFilter>();
+            });
             return services;
         }
 
@@ -82,6 +101,38 @@ namespace TaskManagementSolution.Extensions
 
             IMapper mapper = mapperConfig.CreateMapper();
             services.AddSingleton(mapper);
+            return services;
+        }
+
+        public static IServiceCollection AddLocalizationServices(this IServiceCollection services)
+        {
+            services.AddLocalization();
+            services.AddSingleton<IStringLocalizerFactory, JsonStringLocalizerFactory>();
+            services.Configure<RequestLocalizationOptions>(options =>
+            {
+                var supportedCultures = new[]
+                {
+                        new CultureInfo("en"),
+                        new CultureInfo("ar")
+                };
+
+                options.DefaultRequestCulture = new RequestCulture("en");
+                options.SupportedCultures = supportedCultures;
+                options.SupportedUICultures = supportedCultures;
+                options.SetDefaultCulture("en");
+            });
+            return services;
+        }
+
+        public static IServiceCollection AddCustomMiddleware(this IServiceCollection services)
+        {
+            services.AddSingleton<LocalizationMiddleware>();
+            return services;
+        }
+
+        public static IServiceCollection AddDistributedCachingServices(this IServiceCollection services)
+        {
+            services.AddDistributedMemoryCache();
             return services;
         }
     }

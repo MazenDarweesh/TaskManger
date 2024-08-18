@@ -1,3 +1,4 @@
+using Application.Constants;
 using Application.DTOs;
 using Application.Interfaces;
 using Application.IServices;
@@ -5,6 +6,7 @@ using Application.Models;
 using AutoMapper;
 using Domain.Models;
 using FluentValidation;
+using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 namespace Application.Services
 {
@@ -14,13 +16,15 @@ namespace Application.Services
         private readonly ILogger<TaskService> _logger;
         private readonly IMapper _mapper;
         private readonly IValidator<TaskDomainDTO> _taskDtoValidator;
+        private readonly IStringLocalizer<TaskService> _localizer;
 
-        public TaskService(IUnitOfWork unitOfWork, ILogger<TaskService> logger, IMapper mapper, IValidator<TaskDomainDTO> taskDtoValidator)
+        public TaskService(IUnitOfWork unitOfWork, ILogger<TaskService> logger, IMapper mapper, IValidator<TaskDomainDTO> taskDtoValidator, IStringLocalizer<TaskService> localizer)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
             _mapper = mapper;
             _taskDtoValidator = taskDtoValidator;
+            _localizer = localizer;
         }
         private async Task ValidateTaskDtoAsync(TaskDomainDTO taskDto)
         {
@@ -35,7 +39,7 @@ namespace Application.Services
         public async Task<PagedList<TaskDomainDTO>> GetTasksAsync(PaginationParams paginationParams)
         {
             var tasks = await _unitOfWork.TaskRepository.GetPagedAsync(paginationParams);
-            _logger.LogInformation("Retrieved {Count} tasks", tasks.Count);
+            _logger.LogInformation(_localizer[LocalizationKeys.TasksRetrieved, tasks.Count]);
 
             var taskDtos = _mapper.Map<List<TaskDomainDTO>>(tasks);
             return new PagedList<TaskDomainDTO>(taskDtos, tasks.TotalCount, tasks.CurrentPage, tasks.PageSize);
@@ -46,11 +50,11 @@ namespace Application.Services
             var task = await _unitOfWork.TaskRepository.GetByIdAsync(id.ConvertToUlid());
             if (task == null)
             {
-                _logger.LogWarning("Task with id {TaskId} not found", id);
-                throw new KeyNotFoundException($"Task with id {id} not found");
+                _logger.LogWarning(_localizer[LocalizationKeys.TaskNotFound, id]);
+                throw new KeyNotFoundException(_localizer[LocalizationKeys.TaskNotFound, id]);
             }
 
-            _logger.LogInformation("Retrieved task with id {TaskId}", id);
+            _logger.LogInformation(_localizer[LocalizationKeys.TaskRetrieved, id]);
             return _mapper.Map<TaskDomainDTO>(task);
         }
 
@@ -63,7 +67,7 @@ namespace Application.Services
 
             await _unitOfWork.TaskRepository.AddAsync(task);
             await _unitOfWork.SaveAsync();
-            _logger.LogInformation("Created a new task with id {TaskId}", task.Id);
+            _logger.LogInformation(_localizer[LocalizationKeys.TaskAdded, task.Id]);
 
             return _mapper.Map<TaskDomainDTO>(task);
         }
@@ -75,15 +79,15 @@ namespace Application.Services
             var task = await _unitOfWork.TaskRepository.GetByIdAsync(id.ConvertToUlid());
             if (task == null)
             {
-                _logger.LogWarning("Task with id {TaskId} not found", id);
-                throw new KeyNotFoundException($"Task with id {id} not found");
+                _logger.LogWarning(_localizer[LocalizationKeys.TaskNotFound, id]);
+                throw new KeyNotFoundException(_localizer[LocalizationKeys.TaskNotFound, id]);
             }
 
             _mapper.Map(taskDto, task);
 
             _unitOfWork.TaskRepository.UpdateAsync(task);
             await _unitOfWork.SaveAsync();
-            _logger.LogInformation("Updated task with id {TaskId}", task.Id);
+            _logger.LogInformation(_localizer[LocalizationKeys.TaskUpdated, task.Id]);
         }
 
         public async Task DeleteTaskAsync(string id)
@@ -92,13 +96,13 @@ namespace Application.Services
 
             if (task == null)
             {
-                _logger.LogWarning("Task with id {TaskId} not found", id);
-                throw new KeyNotFoundException($"Task with id {id} not found");
+                _logger.LogWarning(_localizer[LocalizationKeys.TaskNotFound, id]);
+                throw new KeyNotFoundException(_localizer[LocalizationKeys.TaskNotFound, id]);
             }
 
             await _unitOfWork.TaskRepository.DeleteAsync(id.ConvertToUlid());
             await _unitOfWork.SaveAsync();
-            _logger.LogInformation("Deleted task with id {TaskId}", id);
+            _logger.LogInformation(_localizer[LocalizationKeys.TaskDeleted, id]);
         }
 
     }
