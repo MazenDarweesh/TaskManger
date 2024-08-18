@@ -16,7 +16,7 @@ public class JsonStringLocalizer : IStringLocalizer
         _cache = cache;
     }
 
-    public LocalizedString this[string name]
+    public LocalizedString this[string name] //Indexer: Retrieves a localized string by key. If the string is not found, it returns the key itself.
     {
         get
         {
@@ -36,6 +36,7 @@ public class JsonStringLocalizer : IStringLocalizer
         }
     }
 
+    //Reads all localized strings from the JSON file for the current culture
     public IEnumerable<LocalizedString> GetAllStrings(bool includeParentCultures)
     {
         string filePath = $"Resources/{Thread.CurrentThread.CurrentCulture.Name}.json";
@@ -55,6 +56,7 @@ public class JsonStringLocalizer : IStringLocalizer
         }
     }
 
+    //Retrieves a string from the cache or reads it from the JSON file if not cached.
     private string GetString(string key)
     {
         string relativeFilePath = $"Resources/{Thread.CurrentThread.CurrentCulture.Name}.json";

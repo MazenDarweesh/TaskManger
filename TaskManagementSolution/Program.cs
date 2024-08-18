@@ -38,10 +38,10 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
         new CultureInfo("ar")
     };
 
-    options.DefaultRequestCulture = new RequestCulture("en");
+    options.DefaultRequestCulture = new RequestCulture("ar");
     options.SupportedCultures = supportedCultures;
     options.SupportedUICultures = supportedCultures;
-    options.SetDefaultCulture("en");
+    options.SetDefaultCulture("ar");
 });
 
 var app = builder.Build();
