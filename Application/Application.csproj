@@ -16,9 +16,9 @@
 
   <ItemGroup>
     <Folder Include="Models\" />
-    <Folder Include="Validators\" />
     <Folder Include="Constants\" />
     <Folder Include="Localization\" />
+    <Folder Include="Validators\" />
   </ItemGroup>
 
   <PropertyGroup>

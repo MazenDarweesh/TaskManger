@@ -19,13 +19,13 @@ namespace Application.Services
         private readonly IValidator<StudentDTO> _studentDtoValidator;
         private readonly IStringLocalizer<StudentService> _localizer;
 
-        public StudentService(IUnitOfWork unitOfWork, ILogger<StudentService> logger, IMapper mapper, IStringLocalizer<StudentService> localizer, IValidator<StudentDTO> studentDtoValidator)
+        public StudentService(IUnitOfWork unitOfWork, ILogger<StudentService> logger, IMapper mapper, IValidator<StudentDTO> studentDtoValidator, IStringLocalizer<StudentService> localizer)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
             _mapper = mapper;
-            _localizer = localizer;
             _studentDtoValidator = studentDtoValidator;
+            _localizer = localizer;
         }
         private async Task ValidateStudentDtoAsync(StudentDTO studentDto)
         {
@@ -36,9 +36,8 @@ namespace Application.Services
                 throw new ValidationException(validationResult.Errors);
             }
         }
-        }
 
-        public async Task<PagedList<StudentDTO>> GetAllStudentsAsync(PaginationParams paginationParams)
+    public async Task<PagedList<StudentDTO>> GetAllStudentsAsync(PaginationParams paginationParams)
         {
             var students = await _unitOfWork.StudentRepository.GetPagedAsync(paginationParams, "Tasks");
             var studentDtos = _mapper.Map<List<StudentDTO>>(students);
