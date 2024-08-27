@@ -36,13 +36,13 @@ namespace TaskManagementSolution.Extensions
 
         public static IServiceCollection AddDatabase(this IServiceCollection services, IConfiguration configuration)
         {
-            var databaseName = configuration.GetConnectionString("InMemoryDatabase");
-            if (string.IsNullOrEmpty(databaseName))
+            var connectionString = configuration.GetConnectionString("DefaultConnection");
+            if (string.IsNullOrEmpty(connectionString))
             {
-                throw new ArgumentNullException(nameof(databaseName), "Database name cannot be null or empty.");
+                throw new ArgumentNullException(nameof(connectionString), "Connection string cannot be null or empty.");
             }
             services.AddDbContext<TaskContext>(options =>
-                options.UseInMemoryDatabase(databaseName));
+                options.UseSqlServer(connectionString));
             return services;
         }
 

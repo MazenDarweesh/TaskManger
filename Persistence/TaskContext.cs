@@ -26,12 +26,20 @@ namespace Persistence
                 .HasConversion(ulidConverter)
                 .ValueGeneratedOnAdd();
 
-            base.OnModelCreating(modelBuilder);
+           // Apply the converter to Student entity
+            modelBuilder.Entity<Student>()
+                .Property(e => e.Id)
+                .HasConversion(ulidConverter)
+                .ValueGeneratedOnAdd();
+
             // Configure the one-to-many relationship
             modelBuilder.Entity<Student>()
                 .HasMany(s => s.Tasks)
                 .WithOne(t => t.Student)
                 .HasForeignKey(t => t.StudentId);
+
+            base.OnModelCreating(modelBuilder);
+
 
         }
     }
