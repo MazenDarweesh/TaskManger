@@ -24,6 +24,7 @@ namespace Infrastructure.Repositories
 
             var count = await query.CountAsync();
             var items = await query
+                .OrderBy(student => student.Id) // Ensure a consistent order
                 .Skip((paginationParams.PageNumber - 1) * paginationParams.PageSize)
                 .Take(paginationParams.PageSize)
                 .ToListAsync();

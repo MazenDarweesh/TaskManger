@@ -1,14 +1,9 @@
 ﻿using MediatR;
 using Application.IServices;
 using Application.Commands.Task;
-public class UpdateTaskCommandHandler : IRequestHandler<UpdateTaskCommand>
+public class UpdateTaskCommandHandler : BaseCommandTaskHandler, IRequestHandler<UpdateTaskCommand>
 {
-    private readonly ITaskService _taskService;
-
-    public UpdateTaskCommandHandler(ITaskService taskService)
-    {
-        _taskService = taskService;
-    }
+    public UpdateTaskCommandHandler(ITaskService taskService) : base(taskService) {}
 
     public async Task Handle(UpdateTaskCommand request, CancellationToken cancellationToken)
     {

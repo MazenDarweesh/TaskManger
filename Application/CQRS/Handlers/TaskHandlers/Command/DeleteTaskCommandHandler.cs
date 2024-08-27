@@ -3,14 +3,9 @@ using Application.IServices;
 using System.Threading;
 using System.Threading.Tasks;
 
-public class DeleteTaskCommandHandler : IRequestHandler<DeleteTaskCommand>
+public class DeleteTaskCommandHandler : BaseCommandTaskHandler, IRequestHandler<DeleteTaskCommand>
 {
-    private readonly ITaskService _taskService;
-
-    public DeleteTaskCommandHandler(ITaskService taskService)
-    {
-        _taskService = taskService;
-    }
+    public DeleteTaskCommandHandler(ITaskService taskService) : base(taskService) {}
 
     public async Task Handle(DeleteTaskCommand request, CancellationToken cancellationToken)
     {
