@@ -31,6 +31,7 @@ namespace TaskManagementSolution.Extensions
             services.AddLocalizationServices();
             services.AddCustomMiddleware();
             services.AddDistributedCachingServices();
+            services.AddMediatRServices(); // Add MediatR services
             return services;
         }
 
@@ -112,8 +113,8 @@ namespace TaskManagementSolution.Extensions
             {
                 var supportedCultures = new[]
                 {
-                        new CultureInfo("en"),
-                        new CultureInfo("ar")
+                            new CultureInfo("en"),
+                            new CultureInfo("ar")
                 };
 
                 options.DefaultRequestCulture = new RequestCulture("en");
@@ -133,6 +134,12 @@ namespace TaskManagementSolution.Extensions
         public static IServiceCollection AddDistributedCachingServices(this IServiceCollection services)
         {
             services.AddDistributedMemoryCache();
+            return services;
+        }
+
+        public static IServiceCollection AddMediatRServices(this IServiceCollection services)
+        {
+            services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(ServiceCollectionExtensions).Assembly));
             return services;
         }
     }

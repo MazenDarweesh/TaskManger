@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Application.DTOs;
 using Application.Models;
-using Newtonsoft.Json;
-using Application.IServices;
+using MediatR;
+using Application.Commands.Task;
 
 namespace TaskManagementSolution.Controllers;
 
@@ -10,37 +10,30 @@ namespace TaskManagementSolution.Controllers;
 [ApiController]
 public class TasksController : BaseController
 {
-    private readonly ITaskService _taskService;
+    private readonly IMediator _mediator;
 
-    public TasksController(ITaskService taskService)
+    public TasksController(IMediator mediator)
     {
-        _taskService = taskService;
+        _mediator = mediator;
     }
 
     [HttpGet]
     public async Task<ActionResult<PagedList<TaskDomainDTO>>> GetTasks([FromQuery] PaginationParams paginationParams)
     {
-        var tasks = await _taskService.GetTasksAsync(paginationParams);
-        Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(new
-        {
-            tasks.CurrentPage,
-            tasks.TotalPages,
-            tasks.PageSize,
-            tasks.TotalCount
-        }));
+        var query = new GetTasksQuery { PaginationParams = paginationParams };
+        var tasks = await _mediator.Send(query);
         return Ok(tasks);
     }
 
     [HttpGet("{id}")]
     public async Task<ActionResult<TaskDomainDTO>> GetTask(string id)
     {
-        // Validate the ID format, without capturing the parsed Ulid value
         if (!Ulid.TryParse(id, out _))
         {
             return BadRequest("Invalid ID format.");
         }
-
-        var task = await _taskService.GetTaskByIdAsync(id);
+        var query = new GetTaskByIdQuery { Id = id };
+        var task = await _mediator.Send(query);
         if (task == null)
         {
             return NotFound();
@@ -55,9 +48,8 @@ public class TasksController : BaseController
         {
             return BadRequest(ModelState);
         }
-
-        var createdTask = await _taskService.AddTaskAsync(taskDto);
-
+        var command = new CreateTaskCommand { TaskDto = taskDto };
+        var createdTask = await _mediator.Send(command);
         return CreatedAtAction(nameof(GetTask), new { id = createdTask.Id }, createdTask);
     }
 
@@ -74,7 +66,8 @@ public class TasksController : BaseController
             return BadRequest(ModelState);
         }
 
-        await _taskService.UpdateTaskAsync(id,taskDto);
+        var command = new UpdateTaskCommand { Id = id, TaskDto = taskDto };
+        await _mediator.Send(command);
         return NoContent();
     }
 
@@ -86,7 +79,8 @@ public class TasksController : BaseController
             return BadRequest("Invalid ID format.");
         }
 
-        await _taskService.DeleteTaskAsync(id);
+        var command = new DeleteTaskCommand { Id = id };
+        await _mediator.Send(command);
         return NoContent();
     }
 }

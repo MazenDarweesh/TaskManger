@@ -1,4 +1,3 @@
-using Microsoft.OpenApi.Models;
 using Serilog.Events;
 using Serilog;
 using TaskManagementSolution.Extensions;
