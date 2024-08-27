@@ -23,7 +23,6 @@
 
   <ItemGroup>
     <Folder Include="CQRS\Commands\Student\" />
-    <Folder Include="CQRS\Handlers\StudentHandlers\" />
     <Folder Include="Models\" />
     <Folder Include="Constants\" />
     <Folder Include="Localization\" />

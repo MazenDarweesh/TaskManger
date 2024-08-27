@@ -3,24 +3,26 @@ using Application.IServices;
 using Microsoft.AspNetCore.Mvc;
 using Application.Models;
 using Newtonsoft.Json;
+using MediatR;
 
 namespace TaskManagementSolution.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class StudentController : ControllerBase
+    public class StudentController : BaseController
     {
-        private readonly IStudentService _studentService;
+        private readonly IMediator _mediator;
 
-        public StudentController(IStudentService studentService, ILogger<StudentController> logger)
+        public StudentController(IMediator mediator)
         {
-            _studentService = studentService;
+            _mediator = mediator;
         }
 
         [HttpGet]
         public async Task<ActionResult<PagedList<StudentDTO>>> GetStudents([FromQuery] PaginationParams paginationParams)
         {
-            var students = await _studentService.GetAllStudentsAsync(paginationParams);
+            var query = new GetStudentsQuery { PaginationParams = paginationParams };
+            var students = await _mediator.Send(query);
             Response.Headers.Add("X-PaginationStudent", JsonConvert.SerializeObject(new
             {
                 students.CurrentPage,
@@ -38,8 +40,8 @@ namespace TaskManagementSolution.Controllers
             {
                 return BadRequest("Invalid ID format.");
             }
-
-            var student = await _studentService.GetStudentByIdAsync(id);
+            var query = new GetStudentByIdQuery { Id = id };
+            var student = await _mediator.Send(query);
             if (student == null)
             {
                 return NotFound();
@@ -50,10 +52,13 @@ namespace TaskManagementSolution.Controllers
         [HttpPost]
         public async Task<ActionResult<StudentDTO>> PostStudent(StudentDTO studentDto)
         {
-           
-            var createdStudent = await _studentService.AddStudentAsync(studentDto);
-
-            return CreatedAtAction(nameof(GetStudent), new { id = studentDto.Id }, studentDto);
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            var command = new CreateStudentCommand { StudentDto = studentDto };
+            var createdStudent = await _mediator.Send(command);
+            return CreatedAtAction(nameof(GetStudent), new { id = createdStudent.Id }, createdStudent);
         }
 
         [HttpPut("{id}")]
@@ -64,7 +69,13 @@ namespace TaskManagementSolution.Controllers
                 return BadRequest("Invalid ID format.");
             }
 
-            await _studentService.UpdateStudentAsync(id, studentDto);
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var command = new UpdateStudentCommand { Id = id, StudentDto = studentDto };
+            await _mediator.Send(command);
             return NoContent();
         }
 
@@ -76,7 +87,8 @@ namespace TaskManagementSolution.Controllers
                 return BadRequest("Invalid ID format.");
             }
 
-            await _studentService.DeleteStudentAsync(id);
+            var command = new DeleteStudentCommand { Id = id };
+            await _mediator.Send(command);
             return NoContent();
         }
     }
