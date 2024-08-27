@@ -12,14 +12,9 @@ namespace Domain.Entities
     public class Student
     {
         public Ulid Id { get; set; }
-        
-        [Required]
-        [StringLength(100)]
+
         public string Name { get; set; }
-       
-        [Required]
-        [StringLength(100)]
-        [EmailAddress]
+]
         public string Email { get; set; }
         public DateTime DateOfBirth { get; set; }
 
