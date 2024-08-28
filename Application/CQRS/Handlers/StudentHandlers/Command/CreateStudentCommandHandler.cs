@@ -10,3 +10,6 @@ public class CreateStudentCommandHandler :BaseCommandStudentHandler, IRequestHan
         return await _studentService.AddStudentAsync(request.StudentDto);
     }
 }
+//A CancellationToken is a struct in .NET that is used to propagate notifications that operations should be canceled.
+//    It is commonly used in asynchronous programming to provide a way to cancel ongoing tasks, 
+//    such as long-running operations or I/O-bound tasks.
