@@ -73,9 +73,9 @@ namespace TaskManagementSolution.Extensions
         {
             services.AddControllers()
                     .AddFluentValidation(fv => {
+                        fv.RegisterValidatorsFromAssemblyContaining<PaginationValidator>();
                         fv.RegisterValidatorsFromAssemblyContaining<StudentDTOValidator>();
                         fv.RegisterValidatorsFromAssemblyContaining<TaskDomainDTOValidator>();
-                        fv.RegisterValidatorsFromAssemblyContaining<PaginationValidator>();
                     }); // Use a known validator class
             
             return services;
