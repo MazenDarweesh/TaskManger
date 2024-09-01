@@ -1,4 +1,4 @@
-﻿using Application.Models;
+﻿using Application.DTOs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +9,7 @@ namespace Application.Interfaces
 {
     public interface IGenericRepository<T> where T : class
     {
-        Task<PagedList<T>> GetPagedAsync(PaginationParams paginationParams);
+        Task<PagedList<T>> GetPagedAsync(PaginationDTO paginationParams);
         Task<IEnumerable<T>> GetAllAsync();
         Task<T> GetByIdAsync(Ulid id);
         Task AddAsync(T entity);

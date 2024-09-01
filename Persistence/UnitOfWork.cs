@@ -1,7 +1,8 @@
 ﻿using Application.Interfaces;
 using Persistence.Repositories;
 using Domain.Models;
-using Application.Models;
+using Application;
+using Application.DTOs;
 using Infrastructure.Repositories;
 
 namespace Persistence
@@ -29,7 +30,7 @@ namespace Persistence
                 return _taskRepository ??= new TaskRepository(_context);
             }
         }
-        public async Task<PagedList<TaskDomain>> GetPagedTasksAsync(PaginationParams paginationParams)
+        public async Task<PagedList<TaskDomain>> GetPagedTasksAsync(PaginationDTO paginationParams)
         {
             return await TaskRepository.GetPagedAsync(paginationParams);
         }

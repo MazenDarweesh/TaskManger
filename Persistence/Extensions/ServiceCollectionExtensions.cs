@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Builder;
 using System.Globalization;
 using Microsoft.AspNetCore.Localization;
 using FluentValidation.AspNetCore;
+using Application.Validators;
 
 namespace TaskManagementSolution.Extensions
 {
@@ -71,7 +72,12 @@ namespace TaskManagementSolution.Extensions
         public static IServiceCollection AddControllerServices(this IServiceCollection services)
         {
             services.AddControllers()
-                    .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<StudentDTOValidator>()); // Use a known validator class
+                    .AddFluentValidation(fv => {
+                        fv.RegisterValidatorsFromAssemblyContaining<StudentDTOValidator>();
+                        fv.RegisterValidatorsFromAssemblyContaining<TaskDomainDTOValidator>();
+                        fv.RegisterValidatorsFromAssemblyContaining<PaginationValidator>();
+                    }); // Use a known validator class
+            
             return services;
         }
 

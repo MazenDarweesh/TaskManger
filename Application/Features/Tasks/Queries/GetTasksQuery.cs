@@ -1,11 +1,11 @@
 using MediatR;
 using Application.DTOs;
-using Application.Models;
 using Application.IServices;
+using Application;
 
 public class GetTasksQuery : IRequest<PagedList<TaskDomainDTO>>
 {
-    public PaginationParams PaginationParams { get; set; }
+    public PaginationDTO PaginationParams { get; set; }
 }
 
 public class GetTasksQueryHandler(ITaskService taskService) : IRequestHandler<GetTasksQuery, PagedList<TaskDomainDTO>>

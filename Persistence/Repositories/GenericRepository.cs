@@ -1,5 +1,6 @@
-﻿using Application.Interfaces;
-using Application.Models;
+﻿using Application;
+using Application.DTOs;
+using Application.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace Persistence.Repositories
@@ -39,7 +40,7 @@ namespace Persistence.Repositories
             _context.Set<T>().Remove(entity);
         }
 
-        public async Task<PagedList<T>> GetPagedAsync(PaginationParams paginationParams)
+        public async Task<PagedList<T>> GetPagedAsync(PaginationDTO paginationParams)
         {
             return await PagedList<T>.CreateAsync(_context.Set<T>().AsQueryable(), paginationParams.PageNumber, paginationParams.PageSize);
         }

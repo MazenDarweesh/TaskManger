@@ -1,11 +1,10 @@
 using Application.DTOs;
-using Application.Models;
 
 namespace Application.IServices
 {
     public interface ITaskService
     {
-        Task<PagedList<TaskDomainDTO>> GetTasksAsync(PaginationParams paginationParams);
+        Task<PagedList<TaskDomainDTO>> GetTasksAsync(PaginationDTO paginationParams);
         Task<TaskDomainDTO> GetTaskByIdAsync(string id);
         Task<TaskDomainDTO> AddTaskAsync(TaskDomainDTO task);
         Task UpdateTaskAsync(string id, TaskDomainDTO task);

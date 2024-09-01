@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Application.DTOs;
-using Application.Models;
 using MediatR;
-using Application.Commands.Task;
+using Application.Features.Tasks.Task;
+using Application;
 
 namespace TaskManagementSolution.Controllers;
 
@@ -18,7 +18,7 @@ public class TasksController : BaseController
     }
 
     [HttpGet]
-    public async Task<ActionResult<PagedList<TaskDomainDTO>>> GetTasks([FromQuery] PaginationParams paginationParams)
+    public async Task<ActionResult<PagedList<TaskDomainDTO>>> GetTasks([FromQuery] PaginationDTO paginationParams)
     {
         var query = new GetTasksQuery { PaginationParams = paginationParams };
         var tasks = await _mediator.Send(query);

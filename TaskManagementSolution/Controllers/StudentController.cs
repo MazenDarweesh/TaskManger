@@ -1,9 +1,8 @@
 using Application.DTOs;
-using Application.IServices;
 using Microsoft.AspNetCore.Mvc;
-using Application.Models;
 using Newtonsoft.Json;
 using MediatR;
+using Application;
 
 namespace TaskManagementSolution.Controllers
 {
@@ -19,17 +18,17 @@ namespace TaskManagementSolution.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<PagedList<StudentDTO>>> GetStudents([FromQuery] PaginationParams paginationParams)
+        public async Task<ActionResult<PagedList<StudentDTO>>> GetStudents([FromQuery] PaginationDTO paginationParams)
         {
             var query = new GetStudentsQuery { PaginationParams = paginationParams };
             var students = await _mediator.Send(query);
-            Response.Headers.Add("X-PaginationStudent", JsonConvert.SerializeObject(new
+            Response.Headers["X-PaginationStudent"] = JsonConvert.SerializeObject(new
             {
                 students.CurrentPage,
                 students.TotalPages,
                 students.PageSize,
                 students.TotalCount
-            }));
+            });
             return Ok(students);
         }
 

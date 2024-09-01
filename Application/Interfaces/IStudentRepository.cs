@@ -1,4 +1,4 @@
-﻿using Application.Models;
+﻿using Application.DTOs;
 using Domain.Entities;
 using System;
 using System.Collections.Generic;
@@ -10,7 +10,7 @@ namespace Application.Interfaces
 {
     public interface IStudentRepository : IGenericRepository<Student>
     {
-        Task<PagedList<Student>> GetPagedAsync(PaginationParams paginationParams, params string[] includeProperties);
+        Task<PagedList<Student>> GetPagedAsync(PaginationDTO paginationParams, params string[] includeProperties);
         Task<Student> GetByIdAsync(Ulid id, string includeProperties = "");
     }
 }

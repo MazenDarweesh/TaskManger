@@ -2,7 +2,6 @@ using Application.Constants;
 using Application.DTOs;
 using Application.Interfaces;
 using Application.IServices;
-using Application.Models;
 using AutoMapper;
 using Domain.Models;
 using FluentValidation;
@@ -36,7 +35,7 @@ namespace Application.Services
             }
         }
 
-        public async Task<PagedList<TaskDomainDTO>> GetTasksAsync(PaginationParams paginationParams)
+        public async Task<PagedList<TaskDomainDTO>> GetTasksAsync(PaginationDTO paginationParams)
         {
             var tasks = await _unitOfWork.TaskRepository.GetPagedAsync(paginationParams);
             _logger.LogInformation(_localizer[LocalizationKeys.TasksRetrieved, tasks.Count]);

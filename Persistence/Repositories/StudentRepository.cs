@@ -3,7 +3,8 @@ using Domain.Entities;
 using Persistence.Repositories;
 using Persistence;
 using Microsoft.EntityFrameworkCore;
-using Application.Models;
+using Application;
+using Application.DTOs;
 
 namespace Infrastructure.Repositories
 {
@@ -13,7 +14,7 @@ namespace Infrastructure.Repositories
         {
         }
 
-        public async Task<PagedList<Student>> GetPagedAsync(PaginationParams paginationParams, params string[] includeProperties)
+        public async Task<PagedList<Student>> GetPagedAsync(PaginationDTO paginationParams, params string[] includeProperties)
         {
             IQueryable<Student> query = _context.Set<Student>();
 

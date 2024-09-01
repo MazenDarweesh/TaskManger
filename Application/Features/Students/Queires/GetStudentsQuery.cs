@@ -1,8 +1,8 @@
 using MediatR;
 using Application.DTOs;
-using Application.Models;
+using Application;
 
 public class GetStudentsQuery : IRequest<PagedList<StudentDTO>>
 {
-    public PaginationParams PaginationParams { get; set; }
+    public PaginationDTO PaginationParams { get; set; }
 }
