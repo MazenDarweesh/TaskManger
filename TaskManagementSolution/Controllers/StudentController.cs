@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Application.Models;
 using Newtonsoft.Json;
 using MediatR;
+using Application.Validators;
 
 namespace TaskManagementSolution.Controllers
 {
@@ -19,8 +20,14 @@ namespace TaskManagementSolution.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<PagedList<StudentDTO>>> GetStudents([FromQuery] PaginationParams paginationParams)
+        public async Task<ActionResult<PagedList<StudentDTO>>> GetStudents([FromQuery] PaginationParams? paginationParams)
         {
+            var validPaginationParams = new PaginationValidator().Validate(paginationParams);
+            
+            if (!validPaginationParams.IsValid)
+            {
+                return BadRequest(validPaginationParams.Errors);
+            }
             var query = new GetStudentsQuery { PaginationParams = paginationParams };
             var students = await _mediator.Send(query);
             Response.Headers.Add("X-PaginationStudent", JsonConvert.SerializeObject(new

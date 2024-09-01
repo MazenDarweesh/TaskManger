@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Builder;
 using System.Globalization;
 using Microsoft.AspNetCore.Localization;
 using FluentValidation.AspNetCore;
+using Application.Validators;
 
 namespace TaskManagementSolution.Extensions
 {
@@ -75,6 +76,7 @@ namespace TaskManagementSolution.Extensions
                     {
                         fv.RegisterValidatorsFromAssemblyContaining<StudentDTOValidator>();
                         fv.RegisterValidatorsFromAssemblyContaining<TaskDomainDTOValidator>();
+                        fv.RegisterValidatorsFromAssemblyContaining<PaginationValidator>();
                     });
                     ; // Use a known validator class
             return services;
@@ -144,7 +146,8 @@ namespace TaskManagementSolution.Extensions
 
         public static IServiceCollection AddMediatRServices(this IServiceCollection services)
         {
-            services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(ServiceCollectionExtensions).Assembly));
+            // Register MediatR and specify the assembly containing the handlers
+            services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(GetStudentsQuery).Assembly));
             return services;
         }
     }

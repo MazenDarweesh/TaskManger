@@ -5,7 +5,7 @@ using Application.IServices;
 
 public class GetTasksQuery : IRequest<PagedList<TaskDomainDTO>>
 {
-    public PaginationParams PaginationParams { get; set; }
+    public PaginationParams? PaginationParams { get; set; }
 }
 
 public class GetTasksQueryHandler(ITaskService taskService) : IRequestHandler<GetTasksQuery, PagedList<TaskDomainDTO>>

@@ -3,6 +3,7 @@ using Application.DTOs;
 using Application.Models;
 using MediatR;
 using Application.Features.Tasks.Task;
+using Application.Validators;
 
 namespace TaskManagementSolution.Controllers;
 
@@ -18,8 +19,14 @@ public class TasksController : BaseController
     }
 
     [HttpGet]
-    public async Task<ActionResult<PagedList<TaskDomainDTO>>> GetTasks([FromQuery] PaginationParams paginationParams)
+    public async Task<ActionResult<PagedList<TaskDomainDTO>>> GetTasks([FromQuery] PaginationParams? paginationParams)
     {
+        var validPaginationParams = new PaginationValidator().Validate(paginationParams);
+        if (!validPaginationParams.IsValid)
+        {
+            return BadRequest(validPaginationParams.Errors);
+        }
+
         var query = new GetTasksQuery { PaginationParams = paginationParams };
         var tasks = await _mediator.Send(query);
         return Ok(tasks);
