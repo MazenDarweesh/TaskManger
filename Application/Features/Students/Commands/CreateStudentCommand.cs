@@ -1,9 +1,17 @@
 using MediatR;
-using Application.IServices;
 using Application.DTOs;
-public class CreateStudentCommandHandler :BaseCommandStudentHandler, IRequestHandler<CreateStudentCommand, StudentDTO>
+using Application.IServices;
+using Application.Services;
+
+public class CreateStudentCommand : IRequest<StudentDTO>
 {
-    public CreateStudentCommandHandler(IStudentService studentService) : base(studentService) {}
+    public StudentDTO StudentDto { get; set; }
+}
+
+
+public class CreateStudentCommandHandler(IStudentService studentService) : IRequestHandler<CreateStudentCommand, StudentDTO>
+{
+    private IStudentService _studentService = studentService;
 
     public async Task<StudentDTO> Handle(CreateStudentCommand request, CancellationToken cancellationToken)
     {
@@ -12,4 +20,4 @@ public class CreateStudentCommandHandler :BaseCommandStudentHandler, IRequestHan
 }
 //A CancellationToken is a struct in .NET that is used to propagate notifications that operations should be canceled.
 //    It is commonly used in asynchronous programming to provide a way to cancel ongoing tasks, 
-//    such as long-running operations or I/O-bound tasks.
+// 
