@@ -2,7 +2,7 @@
 using Application.DTOs;
 using Application.Models;
 using MediatR;
-using Application.Commands.Task;
+using Application.Features.Tasks.Task;
 
 namespace TaskManagementSolution.Controllers;
 
