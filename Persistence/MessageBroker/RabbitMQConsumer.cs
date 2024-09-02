@@ -61,10 +61,27 @@ public class RabbitMQConsumer : IHostedService
     private async Task SendEmailAsync(EmailMessage emailMessage)
     {
         var message = new MimeMessage();
-        message.From.Add(new MailboxAddress("WorldOffSS","smtp.example.com"));
+        message.From.Add(new MailboxAddress("WorldOffSS", "smtp.example.com"));
         message.To.Add(new MailboxAddress(emailMessage.ToName, emailMessage.ToEmail));
         message.Subject = emailMessage.Subject;
-        message.Body = new TextPart("Hello to our system") { Text = emailMessage.Body };
+
+        var bodyBuilder = new BodyBuilder
+        {
+            HtmlBody = $@"
+                <html>
+                    <body style='font-family: Arial, sans-serif; background-color: #f4f4f9; padding: 20px;'>
+                        <div style='max-width: 600px; margin: auto; background-color: #ffffff; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);'>
+                            <h1 style='color: #333333; border-bottom: 2px solid #add8e6; padding-bottom: 10px;'>Hello, {emailMessage.ToName}!</h1>
+                            <p style='color: #555555;'>{emailMessage.Body}</p>
+                            <footer style='margin-top: 20px; border-top: 2px solid #add8e6; padding-top: 10px;'>
+                                <p style='color: #777777;'>Best regards,<br/><strong>WorldOffSS Team</strong></p>
+                            </footer>
+                        </div>
+                    </body>
+                </html>"
+        };
+
+        message.Body = bodyBuilder.ToMessageBody();
 
         var smtpSettings = _configuration.GetSection("SmtpSettings");
         var host = smtpSettings["Host"];
@@ -72,7 +89,7 @@ public class RabbitMQConsumer : IHostedService
         var username = smtpSettings["Username"];
         var password = smtpSettings["Password"];
 
-        await _smtpClient.ConnectAsync(host, port,true);
+        await _smtpClient.ConnectAsync(host, port, true);
         await _smtpClient.AuthenticateAsync(username, password);
         await _smtpClient.SendAsync(message);
         await _smtpClient.DisconnectAsync(true);
