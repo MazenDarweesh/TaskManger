@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Configuration; 
+using Microsoft.Extensions.Configuration;
 using Application.Interfaces;
 using Persistence;
 using Persistence.Repositories;
@@ -15,6 +15,7 @@ using System.Globalization;
 using Microsoft.AspNetCore.Localization;
 using FluentValidation.AspNetCore;
 using Application.Validators;
+using MailKit.Net.Smtp;           
 
 namespace TaskManagementSolution.Extensions
 {
@@ -23,6 +24,7 @@ namespace TaskManagementSolution.Extensions
         public static IServiceCollection AddAllServices(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddDatabase(configuration);
+            services.AddRabbitMQServices(configuration);  // Add RabbitMQ services
             services.AddRepositories();
             services.AddServices();
             services.AddLoggingServices();
@@ -32,7 +34,8 @@ namespace TaskManagementSolution.Extensions
             services.AddLocalizationServices();
             services.AddCustomMiddleware();
             services.AddDistributedCachingServices();
-            services.AddMediatRServices(); // Add MediatR services
+            services.AddMediatRServices(); 
+
             return services;
         }
 
@@ -78,7 +81,6 @@ namespace TaskManagementSolution.Extensions
                         fv.RegisterValidatorsFromAssemblyContaining<TaskDomainDTOValidator>();
                         fv.RegisterValidatorsFromAssemblyContaining<PaginationValidator>();
                     });
-                    ; // Use a known validator class
             return services;
         }
 
@@ -148,6 +150,26 @@ namespace TaskManagementSolution.Extensions
         {
             // Register MediatR and specify the assembly containing the handlers
             services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(GetStudentsQuery).Assembly));
+            return services;
+        }
+
+        public static IServiceCollection AddRabbitMQServices(this IServiceCollection services, IConfiguration configuration)
+        {
+            // Configure RabbitMQ settings
+            var rabbitMQSettings = configuration.GetSection("RabbitMQSettings").Get<RabbitMQSettings>();
+            if (rabbitMQSettings == null)
+            {
+                throw new InvalidOperationException("RabbitMQSettings section is missing in the configuration.");
+            }
+            services.AddSingleton(rabbitMQSettings);
+
+            // Register RabbitMQ producer and consumer
+            services.AddSingleton<IMessagePublisher, RabbitMQProducer>();
+            services.AddHostedService<RabbitMQConsumer>();
+
+            // Configure SMTP client
+            services.AddSingleton(new SmtpClient());
+
             return services;
         }
     }

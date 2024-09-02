@@ -26,6 +26,8 @@ namespace Application.Services
             _unitOfWork = unitOfWork;
             _logger = logger;
             _mapper = mapper;
+            _studentDtoValidator = studentDtoValidator;
+            _localizer = localizer;
             _messagePublisher = messagePublisher;
         }
         private async Task ValidateStudentDtoAsync(StudentDTO studentDto)
@@ -38,7 +40,7 @@ namespace Application.Services
             }
         }
 
-    public async Task<PagedList<StudentDTO>> GetAllStudentsAsync(PaginationParams paginationParams)
+        public async Task<PagedList<StudentDTO>> GetAllStudentsAsync(PaginationParams paginationParams)
         {
             var students = await _unitOfWork.StudentRepository.GetPagedAsync(paginationParams, "Tasks");
             var studentDtos = _mapper.Map<List<StudentDTO>>(students);
