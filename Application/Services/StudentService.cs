@@ -9,6 +9,7 @@ using FluentValidation;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 
+
 namespace Application.Services
 {
     public class StudentService : IStudentService
@@ -18,14 +19,14 @@ namespace Application.Services
         private readonly IMapper _mapper;
         private readonly IValidator<StudentDTO> _studentDtoValidator;
         private readonly IStringLocalizer<StudentService> _localizer;
+        private readonly IMessagePublisher _messagePublisher;
 
-        public StudentService(IUnitOfWork unitOfWork, ILogger<StudentService> logger, IMapper mapper, IValidator<StudentDTO> studentDtoValidator, IStringLocalizer<StudentService> localizer)
+        public StudentService(IUnitOfWork unitOfWork, ILogger<StudentService> logger, IMapper mapper, IValidator<StudentDTO> studentDtoValidator, IStringLocalizer<StudentService> localizer, IMessagePublisher messagePublisher)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
             _mapper = mapper;
-            _studentDtoValidator = studentDtoValidator;
-            _localizer = localizer;
+            _messagePublisher = messagePublisher;
         }
         private async Task ValidateStudentDtoAsync(StudentDTO studentDto)
         {
@@ -48,8 +49,9 @@ namespace Application.Services
 
         public async Task<StudentDTO> GetStudentByIdAsync(string id)
         {
-            var student = await _unitOfWork.StudentRepository.GetByIdAsync(id.ConvertToUlid(), includeProperties: "Tasks");
-            if (student == null)
+            var ulid = Ulid.Parse(id);
+            var student = await _unitOfWork.StudentRepository.GetByIdAsync(ulid, includeProperties: "Tasks");
+            if(student == null)
             {
                 _logger.LogWarning(_localizer[LocalizationKeys.StudentNotFound, id]);
                 throw new KeyNotFoundException(_localizer[LocalizationKeys.StudentNotFound, id]);
@@ -67,7 +69,17 @@ namespace Application.Services
 
             await _unitOfWork.StudentRepository.AddAsync(student);
             await _unitOfWork.SaveAsync();
-            _logger.LogInformation(_localizer[LocalizationKeys.StudentAdded, student.Id]);
+            _logger.LogInformation("Added a new student with id {StudentId}", student.Id);
+
+            // Send email request to RabbitMQ
+            var emailMessage = new EmailMessage
+            {
+                ToName = student.Name,
+                ToEmail = student.Email,
+                Subject = "Welcome To Our Website!!",
+                Body = "Thank you for registering."
+            };
+            _messagePublisher.SendMessage(emailMessage);
 
             return _mapper.Map<StudentDTO>(student);
         }
