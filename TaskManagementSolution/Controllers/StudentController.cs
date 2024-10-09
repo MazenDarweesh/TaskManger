@@ -1,5 +1,5 @@
 using Application.DTOs;
-using Application.IServices;
+using Application.Interfaces.IServices;
 using Microsoft.AspNetCore.Mvc;
 using Application.Models;
 using Newtonsoft.Json;
@@ -56,6 +56,7 @@ namespace TaskManagementSolution.Controllers
             return Ok(student);
         }
 
+        
         [HttpPost]
         public async Task<ActionResult<StudentDTO>> PostStudent(StudentDTO studentDto)
         {
@@ -65,8 +66,11 @@ namespace TaskManagementSolution.Controllers
             }
             var command = new CreateStudentCommand { StudentDto = studentDto };
             var createdStudent = await _mediator.Send(command);
+            // we will be using the ISender interface from MediatR to send the commands/queries to its registered handlers.
+            // Alternatively, you can also use the IMediator interface, but the ISender interface is far more lightweight
             return CreatedAtAction(nameof(GetStudent), new { id = createdStudent.Id }, createdStudent);
         }
+
 
         [HttpPut("{id}")]
         public async Task<IActionResult> PutStudent(string id, StudentDTO studentDto)

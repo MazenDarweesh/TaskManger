@@ -1,7 +1,7 @@
 ﻿using Application.Constants;
 using Application.DTOs;
 using Application.Interfaces;
-using Application.IServices;
+using Application.Interfaces.IServices;
 using Application.Models;
 using AutoMapper;
 using Domain.Entities;
@@ -30,6 +30,7 @@ namespace Application.Services
             _localizer = localizer;
             _messagePublisher = messagePublisher;
         }
+
         private async Task ValidateStudentDtoAsync(StudentDTO studentDto)
         {
             var validationResult = await _studentDtoValidator.ValidateAsync(studentDto);
@@ -62,7 +63,7 @@ namespace Application.Services
             return _mapper.Map<StudentDTO>(student);
         }
 
-        public async Task<StudentDTO> AddStudentAsync(StudentDTO studentDto)
+        public async Task<StudentDTO> AddStudentAsync(StudentDTO studentDto) // + sending email request to RabbitMQ
         {
             await ValidateStudentDtoAsync(studentDto);
 

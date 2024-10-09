@@ -1,4 +1,4 @@
-using Application.IServices;
+using Application.Interfaces.IServices;
 using MediatR;
 
 public class DeleteStudentCommand : IRequest

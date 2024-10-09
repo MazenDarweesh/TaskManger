@@ -1,6 +1,6 @@
 using MediatR;
 using Application.DTOs;
-using Application.IServices;
+using Application.Interfaces.IServices;
 
 public class UpdateStudentCommand : IRequest
 {

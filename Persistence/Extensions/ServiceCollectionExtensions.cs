@@ -5,7 +5,6 @@ using Application.Interfaces;
 using Persistence;
 using Persistence.Repositories;
 using Application.Services;
-using Application.IServices;
 using Infrastructure.Repositories;
 using AutoMapper;
 using Microsoft.OpenApi.Models;
@@ -15,7 +14,8 @@ using System.Globalization;
 using Microsoft.AspNetCore.Localization;
 using FluentValidation.AspNetCore;
 using Application.Validators;
-using MailKit.Net.Smtp;           
+using MailKit.Net.Smtp;
+using Application.Interfaces.IServices;
 
 namespace TaskManagementSolution.Extensions
 {

@@ -1,7 +1,7 @@
 using Application.Constants;
 using Application.DTOs;
 using Application.Interfaces;
-using Application.IServices;
+using Application.Interfaces.IServices;
 using Application.Models;
 using AutoMapper;
 using Domain.Models;

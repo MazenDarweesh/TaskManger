@@ -1,7 +1,7 @@
 using MediatR;
 using Application.DTOs;
 using Application.Models;
-using Application.IServices;
+using Application.Interfaces.IServices;
 
 public class GetTasksQuery : IRequest<PagedList<TaskDomainDTO>>
 {

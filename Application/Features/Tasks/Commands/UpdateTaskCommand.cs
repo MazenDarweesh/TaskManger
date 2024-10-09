@@ -1,7 +1,7 @@
 using MediatR;
 using Application.DTOs;
 using Application.Features.Tasks.Task;
-using Application.IServices;
+using Application.Interfaces.IServices;
 
 namespace Application.Features.Tasks.Task
 {

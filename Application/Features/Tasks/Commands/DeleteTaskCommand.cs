@@ -1,5 +1,5 @@
 using MediatR;
-using Application.IServices;
+using Application.Interfaces.IServices;
 
 public class DeleteTaskCommand : IRequest
 {

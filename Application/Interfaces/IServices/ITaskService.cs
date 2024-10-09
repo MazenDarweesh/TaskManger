@@ -1,7 +1,7 @@
 using Application.DTOs;
 using Application.Models;
 
-namespace Application.IServices
+namespace Application.Interfaces.IServices
 {
     public interface ITaskService
     {
