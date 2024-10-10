@@ -15,5 +15,6 @@ public class TaskDomain
     public Ulid StudentId { get; set; }
     // Navigation property  allows you to navigate from a task to the related student
     public Student Student { get; set; }
+    // termentation date 
 }
 
