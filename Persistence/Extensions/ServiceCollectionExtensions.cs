@@ -15,6 +15,7 @@ using System.Globalization;
 using Microsoft.AspNetCore.Localization;
 using FluentValidation.AspNetCore;
 using Application.Validators;
+using Hangfire;
 
 namespace TaskManagementSolution.Extensions
 {
@@ -33,6 +34,7 @@ namespace TaskManagementSolution.Extensions
             services.AddCustomMiddleware();
             services.AddDistributedCachingServices();
             services.AddMediatRServices(); // Add MediatR services
+            services.AddHangfireServices(configuration); // Add Hangfire services
             return services;
         }
 
@@ -148,6 +150,21 @@ namespace TaskManagementSolution.Extensions
         {
             // Register MediatR and specify the assembly containing the handlers
             services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(GetStudentsQuery).Assembly));
+            return services;
+        }
+        public static IServiceCollection AddHangfireServices(this IServiceCollection services, IConfiguration configuration)
+        {
+            var connectionString = configuration.GetConnectionString("DefaultConnection");
+            if (string.IsNullOrEmpty(connectionString))
+            {
+                throw new ArgumentNullException(nameof(connectionString), "Connection string cannot be null or empty.");
+            }
+
+            services.AddHangfire(config =>
+                config.UseSqlServerStorage(connectionString));
+
+            services.AddHangfireServer();
+
             return services;
         }
     }

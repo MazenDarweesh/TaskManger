@@ -2,6 +2,7 @@ using Serilog.Events;
 using Serilog;
 using TaskManagementSolution.Extensions;
 using Microsoft.Extensions.Options;
+using Hangfire;
 
 
 Log.Logger = new LoggerConfiguration()
@@ -33,6 +34,8 @@ var localizationOptions = app.Services.GetService<IOptions<RequestLocalizationOp
 app.UseRequestLocalization(localizationOptions);
 
 app.UseMiddleware<LocalizationMiddleware>();
+
+app.UseHangfireDashboard("/dashboard");
 
 app.MapControllers();
 

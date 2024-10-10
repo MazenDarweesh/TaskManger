@@ -6,6 +6,7 @@ using Application.Models;
 using AutoMapper;
 using Domain.Models;
 using FluentValidation;
+using Hangfire;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 namespace Application.Services
@@ -64,10 +65,15 @@ namespace Application.Services
 
             var task = _mapper.Map<TaskDomain>(taskDto);
             task.Id = Ulid.NewUlid();
+            task.CreatedAt = DateTime.UtcNow;
+            task.TerminationDate = task.CreatedAt.AddDays(2); 
 
             await _unitOfWork.TaskRepository.AddAsync(task);
             await _unitOfWork.SaveAsync();
             _logger.LogInformation(_localizer[LocalizationKeys.TaskAdded, task.Id]);
+
+            // Schedule Hangfire job to delete the task
+            BackgroundJob.Schedule(() => DeleteTaskAsync(task.Id.ToString()), task.TerminationDate);
 
             return _mapper.Map<TaskDomainDTO>(task);
         }
