@@ -11,11 +11,11 @@ public class TaskDomain
     public bool IsCompleted { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
-    public DateTime TerminationDate { get; set; } // New property
-
+    public DateTime TerminationDate { get; set; } 
     // Foreign key to the Student entity
     public Ulid StudentId { get; set; }
-    // Navigation property allows you to navigate from a task to the related student
+    // Navigation property  allows you to navigate from a task to the related student
     public Student Student { get; set; }
+    // termentation date 
 }
 
