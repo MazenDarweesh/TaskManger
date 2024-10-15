@@ -3,7 +3,7 @@ using Serilog;
 using TaskManagementSolution.Extensions;
 using Microsoft.Extensions.Options;
 using Hangfire;
-
+using StackExchange.Redis; 
 
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Information()
@@ -17,7 +17,19 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Host.UseSerilog();
 
 // Add services to the container.
+
 builder.Services.AddAllServices(builder.Configuration);
+
+// Add StackExchange Redis Cache
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.Configuration = "localhost";
+    options.ConfigurationOptions = new ConfigurationOptions()
+    {
+        AbortOnConnectFail = true,
+        EndPoints = { options.Configuration }
+    };
+});
 
 var app = builder.Build();
 
