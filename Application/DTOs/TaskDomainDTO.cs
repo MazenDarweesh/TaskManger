@@ -9,6 +9,6 @@ namespace Application.DTOs
         public string Description { get; set; }
         public bool IsCompleted { get; set; }
         public string StudentId { get; set; }
-        public DateTime TerminationDate { get; set; } 
+        //public DateTime TerminationDate { get; set; } 
     }
 }
