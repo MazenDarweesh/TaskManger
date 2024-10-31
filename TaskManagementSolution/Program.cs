@@ -23,13 +23,17 @@ builder.Services.AddAllServices(builder.Configuration);
 // Add StackExchange Redis Cache
 builder.Services.AddStackExchangeRedisCache(options =>
 {
-    options.Configuration = "localhost";
-    options.ConfigurationOptions = new ConfigurationOptions()
-    {
-        AbortOnConnectFail = true,
-        EndPoints = { options.Configuration }
-    };
+    var configuration = ConfigurationOptions.Parse("redis-14713.c9.us-east-1-2.ec2.redns.redis-cloud.com:14713,password=loNFX6DI1B4bYnh9WIFuitOK8aUbfvlv");
+   // options.Configuration = "\"redis-14713.c9.us-east-1-2.ec2.redns.redis-cloud.com:14713,password=loNFX6DI1B4bYnh9WIFuitOK8aUbfvlv\"";
+    options.ConfigurationOptions = configuration;
+    //options.ConfigurationOptions = new ConfigurationOptions()
+    //{
+    //    AbortOnConnectFail = true,
+
+    //    EndPoints = co
+    //};
 });
+
 
 var app = builder.Build();
 
