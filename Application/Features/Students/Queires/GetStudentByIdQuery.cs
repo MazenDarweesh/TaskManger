@@ -8,7 +8,7 @@ public class GetStudentByIdQuery : IRequest<StudentDTO>
 }
 public class GetStudentByIdQueryHandler(IStudentService studentService) : IRequestHandler<GetStudentByIdQuery, StudentDTO>
 {
-    private readonly IStudentService _studentService;
+    private readonly IStudentService _studentService = studentService;
     public async Task<StudentDTO> Handle(GetStudentByIdQuery request, CancellationToken cancellationToken)
     {
         return await _studentService.GetStudentByIdAsync(request.Id);
