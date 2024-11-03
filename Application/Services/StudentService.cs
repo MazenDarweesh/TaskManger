@@ -43,36 +43,17 @@ namespace Application.Services
             }
         }
 
-    public async Task<PagedList<StudentDTO>> GetAllStudentsAsync(PaginationParams paginationParams)
+        public async Task<PagedList<StudentDTO>> GetAllStudentsAsync(PaginationParams paginationParams)
         {
-            var data = await _distributedCache.GetAsync("students");
-            if (data != null)
-            {
-                var studentredis = JsonSerializer.Deserialize<List<StudentDTO>>(data);
-                var studentDtos2 = _mapper.Map<List<StudentDTO>>(studentredis);
-
-                _logger.LogInformation(_localizer[LocalizationKeys.StudentsRetrieved, studentredis.Count]);
-                return new PagedList<StudentDTO>(studentDtos2, 0, 1, 2);
-
-            }
             var students = await _unitOfWork.StudentRepository.GetPagedAsync(paginationParams, "Tasks");
             var studentDtos = _mapper.Map<List<StudentDTO>>(students);
 
             _logger.LogInformation(_localizer[LocalizationKeys.StudentsRetrieved, students.Count]);
-            var res =new PagedList<StudentDTO>(studentDtos, students.TotalCount, students.CurrentPage, students.PageSize);
-            await _distributedCache.SetAsync("students", Encoding.Default.GetBytes(JsonSerializer.Serialize(res)));
-
-            return res;
+            return new PagedList<StudentDTO>(studentDtos, students.TotalCount, students.CurrentPage, students.PageSize);
         }
-
 
         public async Task<StudentDTO> GetStudentByIdAsync(string id)
         {
-            //var data = await _distributedCache.GetAsync(id);
-            //if (data != null)
-            //{
-            //    var studentRedis = JsonSerializer.Deserialize<StudentDTO>(data);   
-            //}
             var student = await _unitOfWork.StudentRepository.GetByIdAsync(id.ConvertToUlid(), includeProperties: "Tasks");
             if (student == null)
             {
@@ -80,12 +61,7 @@ namespace Application.Services
                 throw new KeyNotFoundException(_localizer[LocalizationKeys.StudentNotFound, id]);
             }
             _logger.LogInformation(_localizer[LocalizationKeys.StudentRetrieved, id]);
-            var res = _mapper.Map<StudentDTO>(student);
-            //await _distributedCache.SetAsync(id, Encoding.Default.GetBytes(JsonSerializer.Serialize(res)));
-
-            return res;
-
-
+            return _mapper.Map<StudentDTO>(student);
         }
 
         public async Task<StudentDTO> AddStudentAsync(StudentDTO studentDto)
