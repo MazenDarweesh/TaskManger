@@ -9,8 +9,7 @@ using FluentValidation;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
-using System.Text;
-using System.Text.Json;
+using TaskManagementSolution.Extensions;
 
 namespace Application.Services
 {
@@ -54,13 +53,21 @@ namespace Application.Services
 
         public async Task<StudentDTO> GetStudentByIdAsync(string id)
         {
-            var student = await _unitOfWork.StudentRepository.GetByIdAsync(id.ConvertToUlid(), includeProperties: "Tasks");
-            if (student == null)
+            var caheKey = $"student-{id}";
+            var student = await _distributedCache.GetOrSetAsync(caheKey, async () =>
             {
-                _logger.LogWarning(_localizer[LocalizationKeys.StudentNotFound, id]);
-                throw new KeyNotFoundException(_localizer[LocalizationKeys.StudentNotFound, id]);
-            }
+                var studentEntity = await _unitOfWork.StudentRepository.GetByIdAsync(id.ConvertToUlid(), includeProperties: "Tasks");
+                if (studentEntity == null)
+                {
+                    _logger.LogWarning(_localizer[LocalizationKeys.StudentNotFound, id]);
+                    throw new KeyNotFoundException(_localizer[LocalizationKeys.StudentNotFound, id]);
+                }
+                // return it to the function
+                return studentEntity;
+            });
+
             _logger.LogInformation(_localizer[LocalizationKeys.StudentRetrieved, id]);
+            // rerturn it to the user as a DTO
             return _mapper.Map<StudentDTO>(student);
         }
 
